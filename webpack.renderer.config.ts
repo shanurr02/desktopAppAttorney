@@ -5,7 +5,17 @@ import { plugins } from './webpack.plugins';
 
 rules.push({
   test: /\.css$/,
-  use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
+  use: [
+    { loader: 'style-loader' },
+    { loader: 'css-loader' },
+    { loader: 'postcss-loader' }
+  ],
+});
+
+// Add asset handling for images
+rules.push({
+  test: /\.(png|jpe?g|gif|svg)$/i,
+  type: 'asset/resource',
 });
 
 export const rendererConfig: Configuration = {

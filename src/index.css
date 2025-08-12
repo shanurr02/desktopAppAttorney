@@ -1,7 +1,24 @@
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif;
-  margin: auto;
-  max-width: 38rem;
-  padding: 2rem;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Disable focus rings globally */
+* {
+  outline: none !important;
+}
+
+*:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Disable click effects */
+*:active {
+  outline: none !important;
+}
+
+/* Disable focus-visible rings */
+*:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
 }
