@@ -1,3 +1,4 @@
+// forge.config.ts
 import type { ForgeConfig } from '@electron-forge/shared-types';
 import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { MakerZIP } from '@electron-forge/maker-zip';
@@ -12,21 +13,21 @@ import * as path from 'path';
 import { mainConfig } from './webpack.main.config';
 import { rendererConfig } from './webpack.renderer.config';
 
+const iconPath = path.resolve(__dirname, 'assets/icons/win/icon'); // <-- one single source of truth
+
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
-    icon: path.resolve(__dirname, 'assets/logo/win/icon'), // no extension
+    icon: iconPath, // no extension here
   },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({
-      // iconUrl is optional — if you use it, it must be an HTTP(S) URL to a .ico
-      // Otherwise, just leave it out
-      // setupIcon: path.resolve(__dirname, 'assets/logo/win/icon.ico'), // absolute path + extension
+      setupIcon: iconPath + '.ico', // extension required here
     }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),
-    new MakerDeb({})
+    new MakerDeb({}),
   ],
   plugins: [
     new AutoUnpackNativesPlugin({}),
