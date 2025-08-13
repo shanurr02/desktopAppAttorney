@@ -7,6 +7,7 @@ import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-nati
 import { WebpackPlugin } from '@electron-forge/plugin-webpack';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
+import * as path from 'path';
 
 import { mainConfig } from './webpack.main.config';
 import { rendererConfig } from './webpack.renderer.config';
@@ -14,16 +15,17 @@ import { rendererConfig } from './webpack.renderer.config';
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
-    icon: 'src/assets/logo/cf-icon.png',
+    icon: path.resolve(__dirname, 'assets/logo/win/icon'), // no extension
   },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({
-      iconUrl: 'src/assets/logo/cf-icon.png',
-      setupIcon: 'src/assets/logo/cf-icon.png',
-    }), 
-    new MakerZIP({}, ['darwin']), 
-    new MakerRpm({}), 
+      // iconUrl is optional — if you use it, it must be an HTTP(S) URL to a .ico
+      // Otherwise, just leave it out
+      // setupIcon: path.resolve(__dirname, 'assets/logo/win/icon.ico'), // absolute path + extension
+    }),
+    new MakerZIP({}, ['darwin']),
+    new MakerRpm({}),
     new MakerDeb({})
   ],
   plugins: [
@@ -44,8 +46,6 @@ const config: ForgeConfig = {
         ],
       },
     }),
-    // Fuses are used to enable/disable various Electron functionality
-    // at package time, before code signing the application
     new FusesPlugin({
       version: FuseVersion.V1,
       [FuseV1Options.RunAsNode]: false,
