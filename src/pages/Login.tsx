@@ -22,6 +22,10 @@ const Login: React.FC = () => {
     navigate("/app/forgot-password")
   }
 
+  const handleDashboard = () => {
+    navigate("/app/dashboard")
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white rounded-md border-[1px] border-gray-200 shadow-sm p-6 w-full max-w-lg">
@@ -95,6 +99,8 @@ const Login: React.FC = () => {
             type="submit"
             variant="primary"
             fullWidth
+            onClick={handleDashboard}
+
           >
             Get started
           </Button>
