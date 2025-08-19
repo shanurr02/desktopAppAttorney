@@ -22,8 +22,8 @@ const Login: React.FC = () => {
     navigate("/app/forgot-password")
   }
 
-  const handleDashboard = () => {
-    navigate("/app/dashboard")
+  const handleHomePage = () => {
+    navigate("/app/HomePage")
   }
 
   return (
@@ -99,7 +99,7 @@ const Login: React.FC = () => {
             type="submit"
             variant="primary"
             fullWidth
-            onClick={handleDashboard}
+            onClick={handleHomePage}
 
           >
             Get started

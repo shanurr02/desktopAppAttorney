@@ -4,7 +4,8 @@ import './index.css';
 import iconImage from './assets/logo/icon.png';
 import { Welcome, Login, ForgotPassword, ResetPassword } from './pages';
 import Layout from './Layout/Layout';
-import Dashboard from './pages/Dashboard';
+// import Dashboard from './pages/Dashboard';
+import HomePage from './pages/HomePage';
 
 
 const App: React.FC = () => {
@@ -19,11 +20,11 @@ const App: React.FC = () => {
           <Route path="login" element={<Login />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
           <Route path="reset-password" element={<ResetPassword />} />
-          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="dashboard" element={<HomePage />} />
         </Route>
         
         {/* Catch-all route - redirect to welcome */}
-        <Route path="*" element={<Dashboard />} />
+        <Route path="*" element={<HomePage />} />
       </Routes>
     </Router>
   );

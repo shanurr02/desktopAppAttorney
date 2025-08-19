@@ -11,7 +11,6 @@
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
     "build-icon": "magick \"src/assets/logo/icon.png\" -define icon:auto-resize=256,128,64,48,32,16 \"assets/icons/win/icon.ico\""
-
   },
   "keywords": [],
   "author": {
@@ -31,6 +30,7 @@
     "@electron/fuses": "^1.8.0",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
+    "@types/recharts": "^1.8.29",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@vercel/webpack-asset-relocator-loader": "^1.7.3",
@@ -58,6 +58,7 @@
     "postcss-loader": "^8.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^7.8.0"
+    "react-router-dom": "^7.8.0",
+    "recharts": "^3.1.2"
   }
 }

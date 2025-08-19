@@ -1,36 +1,80 @@
-import React, { useState } from "react";
-import SidePanel from "../components/SidePanel";
+import React from "react";
+import DashboardCard from "../components/Dashboard/DashboardCard";
+import NavbarDashboard from "../components/Dashboard/NavbarDashboard";
+import Navbar2 from "../components/Dashboard/Navbar2";
+import RevenueChart from "../components/Dashboard/RevenueChart";
+import RecentClient from "../components/Dashboard/RecentClient";
+
+// Define type for client
+interface Client {
+  name: string;
+  status: "Client Invited" | "Application Started" | "Approved";
+  timeAgo: string;
+}
+
+const sampleClients: Client[] = [
+  { name: "Aliah Lane", status: "Client Invited", timeAgo: "2 hours ago" },
+  { name: "Lana Steiner", status: "Client Invited", timeAgo: "2 hours ago" },
+  { name: "Koray Okumus", status: "Application Started", timeAgo: "2 hours ago" },
+  { name: "Joshua Wilson", status: "Approved", timeAgo: "2 hours ago" },
+  { name: "Joshua Wilson", status: "Approved", timeAgo: "2 hours ago" },
+];
 
 const Dashboard: React.FC = () => {
-  const [activePage, setActivePage] = useState("home");
-
-  const renderPage = () => {
-    switch (activePage) {
-      case "home":
-        return <div>🏠 Home Content</div>;
-      case "finance":
-        return <div>💰 Finance Content</div>;
-      case "layers":
-        return <div>📦 Layers Content</div>;
-      case "send":
-        return <div>📤 Send Content</div>;
-      case "clock":
-        return <div>⏰ Clock Content</div>;
-      case "globe":
-        return <div>🌍 Globe Content</div>;
-      case "refresh":
-        return <div>🔄 Refresh Content</div>;
-      case "chart":
-        return <div>📊 Chart Content</div>;
-      default:
-        return <div>Select a page</div>;
-    }
-  };
-
   return (
-    <div className="flex">
-      <SidePanel activePage={activePage} onSelect={setActivePage} />
-      <main className="flex-1 p-6">{renderPage()}</main>
+    <div className="min-h-screen ">
+      {/* 🔹 Top Navbar */}
+      <NavbarDashboard />
+
+      {/* 🔹 Secondary Navbar (Business Activity) */}
+      <Navbar2 />
+
+      {/* 🔹 Stats Cards */}
+      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mx-0">
+        <DashboardCard
+          title="Today's Revenue"
+          amount="$68,768"
+          percentage="10%"
+          icon="up"
+          bgColor="bg-green-100"
+          textColor="text-green-700"
+        />
+        <DashboardCard
+          title="Case Funding"
+          amount="$48,768"
+          percentage="2%"
+          icon="down"
+          bgColor="bg-red-100"
+          textColor="text-red-700"
+        />
+        <DashboardCard
+          title="Active Application"
+          amount="32"
+          percentage="12%"
+          icon="up"
+          bgColor="bg-green-100"
+          textColor="text-green-700"
+        />
+        <DashboardCard
+          title="Funded Cases"
+          amount="12"
+          percentage="2%"
+          icon="down"
+          bgColor="bg-red-100"
+          textColor="text-red-700"
+        />
+      </div>
+
+      {/* 🔹 Chart + Recent Clients in one row */}
+      <div className="p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Revenue Chart takes 2/3 width */}
+        <div className="lg:col-span-3 bg-white rounded-lg shadow p-4">
+          <RevenueChart />
+        </div>
+
+        {/* Recent Clients takes 1/3 width */}
+        <RecentClient clients={sampleClients} />
+      </div>
     </div>
   );
 };
