@@ -2,6 +2,7 @@
 import type { ForgeConfig } from '@electron-forge/shared-types';
 import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { MakerZIP } from '@electron-forge/maker-zip';
+import { MakerWix } from '@electron-forge/maker-wix';
 import { MakerDeb } from '@electron-forge/maker-deb';
 import { MakerRpm } from '@electron-forge/maker-rpm';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
@@ -23,7 +24,8 @@ const config: ForgeConfig = {
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({
-      setupIcon: iconPath + '.ico', // extension required here
+      setupIcon: iconPath + '.ico', 
+      loadingGif: path.resolve(__dirname, 'assets/install-spinner.gif'),
     }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),
