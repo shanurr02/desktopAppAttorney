@@ -2,7 +2,6 @@
 import type { ForgeConfig } from '@electron-forge/shared-types';
 import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { MakerZIP } from '@electron-forge/maker-zip';
-import { MakerWix } from '@electron-forge/maker-wix';
 import { MakerDeb } from '@electron-forge/maker-deb';
 import { MakerRpm } from '@electron-forge/maker-rpm';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
@@ -18,8 +17,20 @@ const iconPath = path.resolve(__dirname, 'assets/icons/win/icon'); // <-- one si
 
 const config: ForgeConfig = {
   packagerConfig: {
-    asar: true,
+    asar: {
+      unpack: "*.{node,dll}",
+    },
     icon: iconPath, // no extension here
+    ignore: [
+      /^\/src\//,
+      /(.eslintrc|.prettierrc)/,
+      /(README|CHANGELOG|LICENSE)/,
+      /\.(md|txt)$/,
+      /^\/\.git/,
+      /node_modules\/.*\/(test|tests|docs|documentation)/,
+      /node_modules\/.*\.(md|txt|yml|yaml)$/,
+    ],
+    prune: true,
   },
   rebuildConfig: {},
   makers: [
