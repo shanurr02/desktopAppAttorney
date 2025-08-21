@@ -17,20 +17,8 @@ const iconPath = path.resolve(__dirname, 'assets/icons/win/icon'); // <-- one si
 
 const config: ForgeConfig = {
   packagerConfig: {
-    asar: {
-      unpack: "*.{node,dll}",
-    },
+    asar: true,
     icon: iconPath, // no extension here
-    ignore: [
-      /^\/src\//,
-      /(.eslintrc|.prettierrc)/,
-      /(README|CHANGELOG|LICENSE)/,
-      /\.(md|txt)$/,
-      /^\/\.git/,
-      /node_modules\/.*\/(test|tests|docs|documentation)/,
-      /node_modules\/.*\.(md|txt|yml|yaml)$/,
-    ],
-    prune: true,
   },
   rebuildConfig: {},
   makers: [
