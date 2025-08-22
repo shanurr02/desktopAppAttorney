@@ -4,6 +4,7 @@ import NavbarDashboard from "../components/Dashboard/NavbarDashboard";
 import Navbar2 from "../components/Dashboard/Navbar2";
 import RevenueChart from "../components/Dashboard/RevenueChart";
 import RecentClient from "../components/Dashboard/RecentClient";
+import profileImage from '../assets/profile.png';
 
 // Define type for client
 interface Client {
@@ -18,31 +19,31 @@ const sampleClients: Client[] = [
     name: "Aliah Lane", 
     status: "Client Invited", 
     timeAgo: "2 hours ago",
-    avatar: "../assets/profile.png"
+    avatar: profileImage
   },
   { 
     name: "Lana Steiner", 
     status: "Client Invited", 
     timeAgo: "2 hours ago",
-    avatar: "../assets/profile.png"
+    avatar: profileImage
   },
   { 
     name: "Koray Okumus", 
     status: "Application Started", 
     timeAgo: "2 hours ago",
-    avatar: "../assets/profile.png"
+    avatar: profileImage
   },
   { 
     name: "Joshua Wilson", 
     status: "Approved", 
     timeAgo: "2 hours ago",
-    avatar: "../assets/profile.png"
+    avatar: profileImage
   },
   { 
     name: "Joshua Wilson", 
     status: "Approved", 
     timeAgo: "2 hours ago",
-    avatar: "../assets/profile.png"
+    avatar: profileImage
   },
 ];
 
