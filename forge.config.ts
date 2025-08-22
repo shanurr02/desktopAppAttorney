@@ -13,17 +13,18 @@ import * as path from 'path';
 import { mainConfig } from './webpack.main.config';
 import { rendererConfig } from './webpack.renderer.config';
 
-const iconPath = path.resolve(__dirname, 'assets/icons/win/icon'); // <-- one single source of truth
+const iconPath = path.resolve(__dirname, 'assets/icons/win/icon.ico'); // <-- Updated to include .ico extension
+
 
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
-    icon: iconPath, // no extension here
+    icon: iconPath, // now includes .ico extension
   },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({
-      setupIcon: iconPath + '.ico', 
+      setupIcon: iconPath, // use the same path since it now includes .ico
       loadingGif: path.resolve(__dirname, 'assets/install-spinner.gif'),
     }),
     new MakerZIP({}, ['darwin']),

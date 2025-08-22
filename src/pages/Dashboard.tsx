@@ -18,31 +18,31 @@ const sampleClients: Client[] = [
     name: "Aliah Lane", 
     status: "Client Invited", 
     timeAgo: "2 hours ago",
-    avatar: "/profile.png"
+    avatar: "../assets/profile.png"
   },
   { 
     name: "Lana Steiner", 
     status: "Client Invited", 
     timeAgo: "2 hours ago",
-    avatar: "/profile.png"
+    avatar: "../assets/profile.png"
   },
   { 
     name: "Koray Okumus", 
     status: "Application Started", 
     timeAgo: "2 hours ago",
-    avatar: "/profile.png"
+    avatar: "../assets/profile.png"
   },
   { 
     name: "Joshua Wilson", 
     status: "Approved", 
     timeAgo: "2 hours ago",
-    avatar: "/profile.png"
+    avatar: "../assets/profile.png"
   },
   { 
     name: "Joshua Wilson", 
     status: "Approved", 
     timeAgo: "2 hours ago",
-    avatar: "/profile.png"
+    avatar: "../assets/profile.png"
   },
 ];
 
