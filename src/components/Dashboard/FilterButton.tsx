@@ -14,7 +14,7 @@ const FilterButton: React.FC<FilterButtonProps> = ({
   return (
     <button
       onClick={onClick}
-      className={`px-3 py-1 rounded-md text-sm font-medium transition 
+      className={`py-2 px-4 rounded-md text-sm font-medium transition 
         ${isActive ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:text-gray-700"}`}
     >
       {label}

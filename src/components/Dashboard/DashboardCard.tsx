@@ -22,21 +22,21 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
 }) => {
   // default fallback colors
   const defaultBg = isPositive ? "bg-green-50" : "bg-red-50";
-  const defaultText = isPositive ? "text-green-600" : "text-red-600";
+  const defaultText = isPositive ? "text-green-700" : "text-red-700";
 
   const Icon = icon === "down" ? ArrowDown : ArrowUp;
 
   return (
-    <div className="rounded-lg shadow-sm border border-gray-200 bg-white p-4 ">
-      <p className="text-gray-600 text-sm">{title}</p>
+    <div className="rounded-md border bg-gray-50  text-card-foreground shadow-sm p-6">
+      <p className="text-sm font-medium text-muted-foreground">{title}</p>
 
       <div className="flex items-center gap-2 mt-2">
-        <h2 className="text-2xl font-bold text-gray-900">{amount}</h2>
+        <h2 className="text-2xl font-bold">{amount}</h2>
 
         <span
           className={`flex items-center gap-1 px-2 py-0.5 text-sm font-medium rounded-full ${bgColor || defaultBg} ${textColor || defaultText}`}
         >
-          <Icon size={14} className={textColor || defaultText} />
+          <Icon size={14} strokeWidth={3} className={textColor || defaultText} />
           {percentage}
         </span>
       </div>

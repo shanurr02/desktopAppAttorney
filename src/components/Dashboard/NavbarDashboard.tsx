@@ -5,9 +5,9 @@ import SearchBox from "./SearchBox";
 
 const NavbarDashboard: React.FC = () => {
   return (
-    <div className="bg-white px-6"> 
+    <div className="bg-white border-b px-4"> 
       {/* Inner container with border under content */}
-      <div className="flex items-center justify-between py-4 border-b">
+      <div className="flex items-center justify-between py-3 ">
         {/* Left */}
         <WelcomeMessage name="Attorney" />
 

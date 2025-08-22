@@ -109,7 +109,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
         </div>
 
         {/* Menu items */}
-        <nav className="flex-1 p-2 space-y-1 overflow-hidden">
+        <nav className="flex-1 p-2 space-y-2 overflow-hidden">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = activePage === item.id;

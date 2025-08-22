@@ -40,7 +40,7 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* Main content scrolls independently */}
-      <main className="flex-1 p-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto">
         {renderPage()}
       </main>
     </div>

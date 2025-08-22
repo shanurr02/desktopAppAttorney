@@ -13,7 +13,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 border rounded-md px-3 py-1 text-sm text-gray-600 hover:bg-gray-50"
+      className="flex items-center gap-2 border rounded-md px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
     >
       <Calendar size={16} />
       {label}
