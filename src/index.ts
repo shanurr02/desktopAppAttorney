@@ -20,9 +20,15 @@ const createWindow = (): void => {
     width: 1200,
     height: 800,
     title: "Case Funders",
-    backgroundColor: "#ffffff", // ✅ prevents green screen flash
+    backgroundColor: "#1d1f1f", // ✅ prevents green screen flash
+    titleBarStyle: "hidden",
+    titleBarOverlay: {
+      color: "#1d1f1f",
+      symbolColor: "#ffffff",
+      height: 42,
+    },
     show: false, // wait until ready
-    frame: true,
+    frame: false,
     autoHideMenuBar: true,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,

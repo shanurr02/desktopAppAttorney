@@ -13,7 +13,7 @@ const App: React.FC = () => {
     <Router>
       <Routes>
         {/* Welcome page as splash screen - no layout */}
-        <Route path="/" element={<Welcome />} />
+        <Route path="/" element={<Login />} />
         
         {/* Layout route with nested routes */}
         <Route path="/app" element={<Layout />}>

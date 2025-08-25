@@ -25,7 +25,7 @@ const config: ForgeConfig = {
   makers: [
     new MakerSquirrel({
       setupIcon: iconPath, // use the same path since it now includes .ico
-      loadingGif: path.resolve(__dirname, 'assets/install-spinner.gif'),
+      loadingGif: path.resolve(__dirname, 'assets/loading.gif'),
     }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),

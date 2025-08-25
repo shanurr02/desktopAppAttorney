@@ -1,11 +1,12 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import iconImage from './assets/logo/icon.png';
+import CustomTitleBar from '../components/CustomTitleBar';
 
 // Layout component using Outlet
 const Layout: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-100">
+            <CustomTitleBar title="Case Funders" />
             {/* Header */}
             {/* Main Content */}
             <main>

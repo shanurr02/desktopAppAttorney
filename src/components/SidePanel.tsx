@@ -1,20 +1,19 @@
-import React, { useState, useCallback, useMemo } from "react";
 import {
-  Home,
-  DollarSign,
-  Layers,
-  Send,
-  ChartPie,
   ArrowLeftRight,
-  RotateCcw,
   BarChart3,
-  Menu,
-  User,
-  LogOut,
   Bell,
+  ChartPie,
+  DollarSign,
+  Home,
+  Layers,
+  LogOut,
+  Menu,
+  RotateCcw,
+  Send,
+  Settings,
+  User,
 } from "lucide-react";
-import { useEffect, useRef } from "react";
-import iconImage from '../assets/logo/icon.png';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type SidePanelProps = {
   onSelect: (page: string) => void;
@@ -36,7 +35,9 @@ const menuItems = [
 
 const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
   const [expanded, setExpanded] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -44,16 +45,19 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
         setExpanded(false);
       }
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setShowProfileMenu(false);
+      }
     };
 
-    if (expanded) {
+    if (expanded || showProfileMenu) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [expanded]);
+  }, [expanded, showProfileMenu]);
 
   // Optimized handlers with useCallback
   const handleToggleExpanded = useCallback(() => {
@@ -70,12 +74,21 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
   }, []);
 
   const handleLogoutClick = useCallback(() => {
-    console.log('Logout clicked');
+    onSelect('login');
+    setShowProfileMenu(false);
+  }, [onSelect]);
+
+  const handleSettingsClick = useCallback(() => {
+    console.log('Settings clicked');
+  }, []);
+
+  const handleProfileClick = useCallback(() => {
+    setShowProfileMenu(prev => !prev);
   }, []);
 
   // Memoized classes to prevent recalculation - made absolute and always w-16 collapsed, w-64 expanded as overlay
   const sidebarClasses = useMemo(() =>
-    `absolute top-0 left-0 h-screen bg-[#161717]/95 backdrop-blur-sm text-white flex flex-col transition-all duration-200 ease-out z-50 ${expanded ? "w-64 shadow-2xl" : "w-16"
+    `absolute top-0 left-0 min-h-full bg-[#1d1f1f] backdrop-blur-sm text-white flex flex-col transition-all duration-200 ease-out z-50 ${expanded ? "w-64 shadow-2xl" : "w-16"
     }`, [expanded]
   );
 
@@ -83,31 +96,9 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
     `flex items-center justify-center h-16 border-b border-gray-700/30 px-4 bg-[#161717]/40`, []
   );
 
-  const footerClasses = useMemo(() =>
-    `py-4 border-t border-gray-700/30 bg-[#161717]/40 relative`, []
-  );
-
   return (
-    <div className="min-w-16">
-
+    <div className="min-w-16 ">
       <div ref={sidebarRef} className={sidebarClasses}>
-        {/* Header with logo */}
-        <div className={headerClasses}>
-          <div className="flex items-center min-w-0">
-            <img
-              src={iconImage}
-              alt="Case Funders Logo"
-              className="w-8 h-8 flex-shrink-0 select-none"
-            />
-            <div
-              className={`ml-3 overflow-hidden transition-all duration-200 ease-out ${expanded ? "w-auto opacity-100" : "w-0 opacity-0"
-                }`}
-            >
-              <span className="font-semibold text-lg whitespace-nowrap select-none">Case Funders</span>
-            </div>
-          </div>
-        </div>
-
         {/* Menu items */}
         <nav className="flex-1 p-2 space-y-2 overflow-hidden">
           {menuItems.map((item) => {
@@ -169,34 +160,129 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
           })}
         </nav>
 
-        {/* Footer with profile and notifications */}
-        <div className={footerClasses}>
+        {/* Footer with profile and settings */}
+        <div className={`py-2 border-t border-gray-700/30 bg-[#161717]/40 relative`}>
           {/* Expanded state footer */}
           {expanded && (
             <div className="flex items-center h-full px-4">
               <div className="flex items-center w-full">
                 {/* Profile section */}
-                <div className="flex items-center flex-1 min-w-0">
-                  <div className="relative">
-                    <div className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center">
-                      <User className="h-4 w-4 text-white" />
+                <div className="flex items-center flex-1 min-w-0 relative" ref={profileMenuRef}>
+                  <button
+                    onClick={handleProfileClick}
+                    className="flex items-center py-2 w-full  px-4 hover:bg-[#161717]/50 rounded-md transition-all duration-150 ease-out"
+                  >
+                    <div className="relative">
+                      <div className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center">
+                        <User className="h-4 w-4 text-white" />
+                      </div>
                     </div>
-                  </div>
-                  <div className="ml-3 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">Profile</p>
-                  </div>
+                    <div className="ml-3 min-w-0">
+                      <p className="text-sm font-medium text-white truncate">Profile</p>
+                    </div>
+                  </button>
+
+                  {/* Profile Context Menu */}
+                  {showProfileMenu && (
+                    <div className="absolute bottom-full left-0 mb-2 w-48 bg-[#161717]/95 backdrop-blur-sm border border-gray-700/30 rounded-md shadow-lg z-60">
+                      <div className="py-1">
+                        <button
+                          onClick={() => {
+                            console.log('View Profile clicked');
+                            setShowProfileMenu(false);
+                          }}
+                          className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-[#161717]/50 hover:text-white flex items-center"
+                        >
+                          <User className="h-4 w-4 mr-3" />
+                          View Profile
+                        </button>
+                        <button
+                          onClick={handleSettingsClick}
+                          className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-[#161717]/50 hover:text-white flex items-center"
+                        >
+                          <Settings className="h-4 w-4 mr-3" />
+                          Settings
+                        </button>
+                        <button
+                          onClick={() => {
+                            console.log('Notifications clicked');
+                            setShowProfileMenu(false);
+                          }}
+                          className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-[#161717]/50 hover:text-white flex items-center"
+                        >
+                          <Bell className="h-4 w-4 mr-3" />
+                          Notifications
+                        </button>
+                        <div className="border-t border-gray-700/30 my-1"></div>
+                        <button
+                          onClick={handleLogoutClick}
+                          className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 flex items-center"
+                        >
+                          <LogOut className="h-4 w-4 mr-3" />
+                          Logout
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
+
             </div>
           )}
 
           {/* Collapsed state footer */}
           {!expanded && (
-            <div className="flex flex-col items-center justify-center h-full space-y-2">
+            <div className="flex flex-col items-center justify-center h-full py-2 space-y-2 relative" ref={profileMenuRef}>
               {/* Profile icon */}
-              <div className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center">
+              <button
+                onClick={handleProfileClick}
+                className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center hover:bg-orange-600 transition-colors duration-150 ease-out"
+              >
                 <User className="h-4 w-4 text-white" />
-              </div>
+              </button>
+
+              {/* Profile Context Menu for collapsed state */}
+              {showProfileMenu && (
+                <div className="absolute bottom-0 left-16 mb-2 w-48 bg-[#161717]/95 backdrop-blur-sm border border-gray-700/30 rounded-md shadow-lg z-60">
+                  <div className="py-1">
+                    <button
+                      onClick={() => {
+                        console.log('View Profile clicked');
+                        setShowProfileMenu(false);
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-[#161717]/50 hover:text-white flex items-center"
+                    >
+                      <User className="h-4 w-4 mr-3" />
+                      View Profile
+                    </button>
+                    <button
+                      onClick={handleSettingsClick}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-[#161717]/50 hover:text-white flex items-center"
+                    >
+                      <Settings className="h-4 w-4 mr-3" />
+                      Settings
+                    </button>
+                    <button
+                      onClick={() => {
+                        console.log('Notifications clicked');
+                        setShowProfileMenu(false);
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-[#161717]/50 hover:text-white flex items-center"
+                    >
+                      <Bell className="h-4 w-4 mr-3" />
+                      Notifications
+                    </button>
+                    <div className="border-t border-gray-700/30 my-1"></div>
+                    <button
+                      onClick={handleLogoutClick}
+                      className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 flex items-center"
+                    >
+                      <LogOut className="h-4 w-4 mr-3" />
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

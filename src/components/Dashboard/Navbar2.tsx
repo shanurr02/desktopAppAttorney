@@ -5,7 +5,7 @@ import DateSelector from "./DateSelector";
 
 const Navbar2: React.FC = () => {
   return (
-    <div className="flex items-center justify-between px-4 py-4  bg-white">
+    <div className="flex items-center justify-between px-4 py-4  bg-gray-100">
       {/* Left */}
       <Title text="Business Activity" />
 
