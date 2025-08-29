@@ -6,7 +6,6 @@ import CustomTitleBar from '../components/CustomTitleBar';
 const Layout: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-100">
-            <CustomTitleBar title="Case Funders" />
             {/* Header */}
             {/* Main Content */}
             <main>

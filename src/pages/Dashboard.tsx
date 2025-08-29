@@ -49,20 +49,20 @@ const sampleClients: Client[] = [
 
 const Dashboard: React.FC = () => {
   return (
-    <div className="pl-2 min-h-full py-2">
+    <div className="px-2 min-h-full py-2">
       {/* 🔹 Top Navbar */}
       <NavbarDashboard />
 
       {/* 🔹 Secondary Navbar (Business Activity) */}
       <Navbar2 />
 
-      <div className="space-y-2"> 
+      <div className="space-y-3"> 
         {/* 🔹 Stats Cards */}
       <div className="pt-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mx-0">
         <DashboardCard
           title="Today's Revenue"
           amount="$68,768"
-          percentage="10%"
+          percentage="10%" 
           icon="up"
           bgColor="bg-green-100"
           textColor="text-green-700"

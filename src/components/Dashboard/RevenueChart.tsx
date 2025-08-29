@@ -109,7 +109,7 @@ const RevenueChart: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <div className="flex space-x-4" id="tab-buttons">
           <button
-            className={`px-4 py-2 rounded-lg font-medium ${
+            className={`py-2 px-4 rounded-md text-sm font-medium transition ${
               activeTab === "30" 
                 ? "bg-gray-100 text-gray-700" 
                 : "text-gray-500 hover:bg-gray-50"
@@ -119,7 +119,8 @@ const RevenueChart: React.FC = () => {
             30 Days
           </button>
           <button
-            className={`px-4 py-2 rounded-lg font-medium ${
+            className={`py-2 px-4 rounded-md text-sm font-medium transition  ${
+              
               activeTab === "90" 
                 ? "bg-gray-100 text-gray-700" 
                 : "text-gray-500 hover:bg-gray-50"
@@ -130,8 +131,8 @@ const RevenueChart: React.FC = () => {
           </button>
         </div>
         <button
-          className="calendar-btn flex items-center space-x-2 px-4 py-2 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50"
-          onClick={handleDateSelector}
+         className="flex items-center gap-2 border rounded-md px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
+         onClick={handleDateSelector}
         >
           <i className="fas fa-calendar text-sm"></i>
           <span>Select dates</span>

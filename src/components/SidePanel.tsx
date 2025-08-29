@@ -14,6 +14,7 @@ import {
   User,
 } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom"
 
 type SidePanelProps = {
   onSelect: (page: string) => void;
@@ -38,6 +39,8 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -74,9 +77,10 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
   }, []);
 
   const handleLogoutClick = useCallback(() => {
-    onSelect('login');
+    console.log('Logout button clicked - navigating to /login');
+    navigate('/login');
     setShowProfileMenu(false);
-  }, [onSelect]);
+  }, [navigate]);
 
   const handleSettingsClick = useCallback(() => {
     console.log('Settings clicked');
