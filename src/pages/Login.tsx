@@ -105,7 +105,7 @@ const Login: React.FC = () => {
               onClick={handleHomePage}
 
             >
-              Get started
+              Login
             </Button>
 
             {/* Login Link */}
