@@ -3,7 +3,7 @@ import SidePanel from "../components/SidePanel";
 import Dashboard from "./Dashboard";
 import CustomTitleBar from "../components/CustomTitleBar";
 
-const HomePage: React.FC = () => {
+const LayoutDashboard: React.FC = () => {
   const [activePage, setActivePage] = useState("home");
 
   const renderPage = () => {
@@ -38,4 +38,4 @@ const HomePage: React.FC = () => {
   );
 };
 
-export default HomePage;
+export default LayoutDashboard;

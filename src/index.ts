@@ -10,6 +10,19 @@ app.disableHardwareAcceleration();
 app.commandLine.appendSwitch("disable-gpu");
 app.commandLine.appendSwitch("disable-gpu-compositing");
 
+// // ✅ Fix for CSP and network issues in development
+// if (process.env.NODE_ENV === 'development') {
+//   app.commandLine.appendSwitch("disable-web-security");
+//   app.commandLine.appendSwitch("disable-features", "VizDisplayCompositor");
+//   app.commandLine.appendSwitch("disable-site-isolation-trials");
+//   app.commandLine.appendSwitch("disable-features", "OutOfBlinkCors");
+//   app.commandLine.appendSwitch("disable-features", "CrossSiteDocumentBlockingAlways");
+//   app.commandLine.appendSwitch("disable-features", "CrossSiteDocumentBlockingIfIsolating");
+//   app.commandLine.appendSwitch("disable-features", "CrossOriginEmbedderPolicy");
+//   app.commandLine.appendSwitch("disable-features", "CrossOriginOpenerPolicy");
+//   app.commandLine.appendSwitch("disable-features", "CrossOriginEmbedderPolicyCredentialless");
+// }
+
 // Squirrel installer shortcut handling (Windows only)
 if (require("electron-squirrel-startup")) {
   app.quit();
@@ -27,11 +40,16 @@ const createWindow = (): void => {
       symbolColor: "#ffffff",
       height: 42,
     },
-    show: false, // wait until ready
     frame: false,
     autoHideMenuBar: true,
+    // show: false, // wait until ready
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      nodeIntegration: false,
+      contextIsolation: true,
+      webSecurity: process.env.NODE_ENV === 'development' ? false : true,
+      allowRunningInsecureContent: process.env.NODE_ENV === 'development',
+      experimentalFeatures: process.env.NODE_ENV === 'development',
     },
   });
 
