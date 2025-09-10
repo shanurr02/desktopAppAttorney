@@ -35,6 +35,7 @@ const config: ForgeConfig = {
     new AutoUnpackNativesPlugin({}),
     new WebpackPlugin({
       mainConfig,
+      devContentSecurityPolicy: "connect-src 'self' http://dev.casefunders.com https://dev.casefunders.com http://localhost:* https://localhost:* 'unsafe-eval'",
       renderer: {
         config: rendererConfig,
         entryPoints: [

@@ -14,7 +14,8 @@ import {
   User,
 } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 type SidePanelProps = {
   onSelect: (page: string) => void;
@@ -40,6 +41,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { currentUser, logout } = useAuth();
   
 
   // Close menu when clicking outside
@@ -76,11 +78,18 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
     console.log('Notifications clicked');
   }, []);
 
-  const handleLogoutClick = useCallback(() => {
-    console.log('Logout button clicked - navigating to /login');
-    navigate('/login');
-    setShowProfileMenu(false);
-  }, [navigate]);
+  const handleLogoutClick = useCallback(async () => {
+    try {
+      await logout();
+      navigate('/app/login');
+      setShowProfileMenu(false);
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still navigate to login even if logout fails
+      navigate('/app/login');
+      setShowProfileMenu(false);
+    }
+  }, [logout, navigate]);
 
   const handleSettingsClick = useCallback(() => {
     console.log('Settings clicked');
@@ -90,9 +99,9 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
     setShowProfileMenu(prev => !prev);
   }, []);
 
-  // Memoized classes to prevent recalculation - made absolute and always w-16 collapsed, w-64 expanded as overlay
+  // Memoized classes to prevent recalculation - positioned below title bar
   const sidebarClasses = useMemo(() =>
-    `absolute top-0 left-0 min-h-full bg-[#1d1f1f] backdrop-blur-sm text-white flex flex-col transition-all duration-200 ease-out z-50 ${expanded ? "w-64 shadow-2xl" : "w-16"
+    `bg-[#1d1f1f] backdrop-blur-sm text-white flex flex-col transition-all duration-200 ease-out z-50 ${expanded ? "w-64 shadow-2xl" : "w-16"
     }`, [expanded]
   );
 
@@ -101,8 +110,8 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
   );
 
   return (
-    <div className="min-w-16 ">
-      <div ref={sidebarRef} className={sidebarClasses}>
+    <div className="min-w-16 h-full">
+      <div ref={sidebarRef} className={`${sidebarClasses} h-full`}>
         {/* Menu items */}
         <nav className="flex-1 p-2 space-y-2 overflow-hidden">
           {menuItems.map((item) => {
@@ -182,7 +191,12 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
                       </div>
                     </div>
                     <div className="ml-3 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">Profile</p>
+                      <p className="text-sm font-medium text-white truncate">
+                        {currentUser?.name || currentUser?.first_name || 'Profile'}
+                      </p>
+                      <p className="text-xs text-gray-400 truncate">
+                        {currentUser?.userType || currentUser?.group}
+                      </p>
                     </div>
                   </button>
 
@@ -190,6 +204,18 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
                   {showProfileMenu && (
                     <div className="absolute bottom-full left-0 mb-2 w-48 bg-[#161717]/95 backdrop-blur-sm border border-gray-700/30 rounded-md shadow-lg z-60">
                       <div className="py-1">
+                        {/* User Info Section */}
+                        <div className="px-4 py-2 border-b border-gray-700/30">
+                          <p className="text-sm font-medium text-white truncate">
+                            {currentUser?.name || currentUser?.first_name || 'User'}
+                          </p>
+                          <p className="text-xs text-gray-400 truncate">
+                            {currentUser?.email}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">
+                            {currentUser?.userType || currentUser?.group}
+                          </p>
+                        </div>
                         <button
                           onClick={() => {
                             console.log('View Profile clicked');
@@ -237,18 +263,37 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
           {/* Collapsed state footer */}
           {!expanded && (
             <div className="flex flex-col items-center justify-center h-full py-2 space-y-2 relative" ref={profileMenuRef}>
-              {/* Profile icon */}
+              {/* Profile icon with initials */}
               <button
                 onClick={handleProfileClick}
                 className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center hover:bg-orange-600 transition-colors duration-150 ease-out"
+                title={currentUser?.name || currentUser?.first_name || 'Profile'}
               >
-                <User className="h-4 w-4 text-white" />
+                {currentUser?.first_name ? (
+                  <span className="text-xs font-medium text-white">
+                    {currentUser.first_name.charAt(0).toUpperCase()}
+                  </span>
+                ) : (
+                  <User className="h-4 w-4 text-white" />
+                )}
               </button>
 
               {/* Profile Context Menu for collapsed state */}
               {showProfileMenu && (
                 <div className="absolute bottom-0 left-16 mb-2 w-48 bg-[#161717]/95 backdrop-blur-sm border border-gray-700/30 rounded-md shadow-lg z-60">
                   <div className="py-1">
+                    {/* User Info Section */}
+                    <div className="px-4 py-2 border-b border-gray-700/30">
+                      <p className="text-sm font-medium text-white truncate">
+                        {currentUser?.name || currentUser?.first_name || 'User'}
+                      </p>
+                      <p className="text-xs text-gray-400 truncate">
+                        {currentUser?.email}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {currentUser?.userType || currentUser?.group}
+                      </p>
+                    </div>
                     <button
                       onClick={() => {
                         console.log('View Profile clicked');

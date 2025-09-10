@@ -1,18 +1,72 @@
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Input, Button } from "../components"
 import iconImage from '../assets/logo/icon.png';
 import CustomTitleBar from "../components/CustomTitleBar"
+import { useAuth, useFormValidation } from "../hooks"
+import { loginSchema, type LoginFormData, type LoginValidationErrors } from "../validation"
 const Login: React.FC = () => {
   const navigate = useNavigate()
-  const [userType, setUserType] = useState<"Client" | "Attorney">("Client")
+  const { login, isLoading, loginError, isLoggedIn } = useAuth()
+  const [userType, setUserType] = useState<"client" | "attorney">("client")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [error, setError] = useState<string>("")
+  
+  // Use form validation hook
+  const {
+    errors: validationErrors,
+    validate,
+    clearFieldError,
+    clearAllErrors,
+  } = useFormValidation<LoginValidationErrors>(loginSchema)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/app/dashboard")
+    }
+  }, [isLoggedIn, navigate])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Login attempt:", { userType, email, password })
+    setError("")
+    clearAllErrors()
+
+    // Validate form data
+    const formData: LoginFormData = {
+      email,
+      password,
+      userType,
+    }
+
+    // Validate with Zod using the hook
+    if (!validate(formData)) {
+      return
+    }
+
+    try {
+      const response = await login({ email, password })
+      
+      // Check if user's group matches selected userType
+      if (response.user.group !== userType) {
+        setError(`This account is for ${response.user.group === 'attorney' ? 'Attorney' : 'Client'} users. Please select the correct user type.`)
+        return
+      }
+      
+      navigate("/app/dashboard")
+    } catch (err: any) {
+      // Handle API error responses
+      if (err?.response?.data?.error) {
+        setError(err.response.data.error)
+      } else if (err?.message) {
+        setError(err.message)
+      } else {
+        setError("Login failed. Please check your credentials.")
+      }
+      console.error("Login error:", err)
+    }
   }
 
   const handleGoogleLogin = () => {
@@ -23,9 +77,36 @@ const Login: React.FC = () => {
     navigate("/app/forgot-password")
   }
 
-  const handleHomePage = () => {
-    navigate("/app/HomePage")
+  const handleUserTypeChange = (newUserType: "client" | "attorney") => {
+    setUserType(newUserType)
+    // Clear errors when user changes type
+    if (error && error.includes('account is for')) {
+      setError("")
+    }
+    // Clear validation error for userType
+    clearFieldError('userType')
   }
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value)
+    // Clear validation error for email
+    clearFieldError('email')
+    // Clear API error when user starts typing
+    if (error) {
+      setError("")
+    }
+  }
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value)
+    // Clear validation error for password
+    clearFieldError('password')
+    // Clear API error when user starts typing
+    if (error) {
+      setError("")
+    }
+  }
+
 
   return (
     <div className="max-h-screen overflow-hidden">
@@ -47,44 +128,61 @@ const Login: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* User Type Toggle */}
-            <div className="flex bg-gray-100 rounded-lg p-1 shadow-inner">
-              <button
-                type="button"
-                onClick={() => setUserType("Client")}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${userType === "Client" ? "bg-white text-gray-900 shadow-md" : "text-gray-600 hover:text-gray-900"
-                  }`}
-              >
-                Client
-              </button>
-              <button
-                type="button"
-                onClick={() => setUserType("Attorney")}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${userType === "Attorney" ? "bg-white text-gray-900 shadow-md" : "text-gray-600 hover:text-gray-900"
-                  }`}
-              >
-                Attorney
-              </button>
+            <div>
+              <div className={`flex bg-gray-100 rounded-lg p-1 shadow-inner ${error && error.includes('account is for') ? 'ring-2 ring-red-300' : ''}`}>
+                <button
+                  type="button"
+                  onClick={() => handleUserTypeChange("client")}
+                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${userType === "client" ? "bg-white text-gray-900 shadow-md" : "text-gray-600 hover:text-gray-900"
+                    }`}
+                >
+                  Client
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleUserTypeChange("attorney")}
+                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${userType === "attorney" ? "bg-white text-gray-900 shadow-md" : "text-gray-600 hover:text-gray-900"
+                    }`}
+                >
+                  Attorney
+                </button>
+              </div>
+              {validationErrors.userType && (
+                <p className="text-red-500 text-sm mt-1">{validationErrors.userType}</p>
+              )}
             </div>
 
             {/* Email Input */}
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-              autoComplete="email"
-            />
+            <div>
+              <Input
+                type="email"
+                value={email}
+                onChange={handleEmailChange}
+                placeholder="Enter your email"
+                required
+                autoComplete="email"
+                className={validationErrors.email ? 'border-red-300 focus:border-red-500' : ''}
+              />
+              {validationErrors.email && (
+                <p className="text-red-500 text-sm mt-1">{validationErrors.email}</p>
+              )}
+            </div>
 
             {/* Password Input */}
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              autoComplete="current-password"
-            />
+            <div>
+              <Input
+                type="password"
+                value={password}
+                onChange={handlePasswordChange}
+                placeholder="••••••••"
+                required
+                autoComplete="current-password"
+                className={validationErrors.password ? 'border-red-300 focus:border-red-500' : ''}
+              />
+              {validationErrors.password && (
+                <p className="text-red-500 text-sm mt-1">{validationErrors.password}</p>
+              )}
+            </div>
 
             {/* Forgot Password Link */}
             <div className="text-right">
@@ -97,26 +195,37 @@ const Login: React.FC = () => {
               </button>
             </div>
 
+            {/* Error Message */}
+            {(error || loginError) && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
+                <div className="flex items-center">
+                  <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  <span>{error || "Login failed. Please try again."}</span>
+                </div>
+              </div>
+            )}
+
             {/* Submit Button */}
             <Button
               type="submit"
               variant="primary"
               fullWidth
-              onClick={handleHomePage}
-
+              disabled={isLoading}
             >
-              Login
+              {isLoading ? "Signing in..." : "Login"}
             </Button>
 
             {/* Login Link */}
-            <div className="text-center">
+            {/* <div className="text-center">
               <p className="text-sm text-gray-600">
                 Already have an account?{" "}
                 <button type="button" className="text-green-600 hover:text-green-700 font-medium">
                   Log in
                 </button>
               </p>
-            </div>
+            </div> */}
 
             {/* Google Login */}
             <Button
