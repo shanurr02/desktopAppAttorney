@@ -34,10 +34,16 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user_data');
-      window.location.href = '/app/login';
+      // Only redirect if it's not a login request
+      const isLoginRequest = error.config?.url?.includes('/login/');
+      
+      if (!isLoginRequest) {
+        // Token expired or invalid - only redirect for non-login requests
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_data');
+        // Use hash routing for desktop app
+        window.location.hash = '#/app/login';
+      }
     }
     return Promise.reject(error);
   }
