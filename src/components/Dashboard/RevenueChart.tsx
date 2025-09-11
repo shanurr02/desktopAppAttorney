@@ -65,15 +65,28 @@ const RevenueChart: React.FC = () => {
   const getCurrentChartData = () => {
     const baseData = originalChartData[activeTab as keyof typeof originalChartData];
 
+    // If no date filter is applied, return all data for the active tab
     if (!dateFilter) {
       return baseData;
     }
 
+    // Apply date filter
     const { startDay, endDay } = dateFilter;
     const filteredIndexes = baseData.labels
       .map((label, idx) => ({ label: parseInt(label, 10), idx }))
       .filter(obj => obj.label >= startDay && obj.label <= endDay)
       .map(obj => obj.idx);
+
+    // If no data matches the filter, return empty data structure
+    if (filteredIndexes.length === 0) {
+      return {
+        labels: [],
+        datasets: baseData.datasets.map(ds => ({
+          ...ds,
+          data: []
+        }))
+      };
+    }
 
     return {
       labels: filteredIndexes.map(idx => baseData.labels[idx]),
@@ -98,9 +111,14 @@ const RevenueChart: React.FC = () => {
     setDateFilter(null); // Reset date filter when changing tabs
   };
 
-  const handleDateSelector = () => {
-    // This would open a date picker modal in a real implementation
-    alert("Open date picker");
+  const handleDateSelect = (startDate: Date | null, endDate: Date | null) => {
+    if (startDate && endDate) {
+      setDateFilter({ startDay: startDate.getDate(), endDay: endDate.getDate() });
+    } else {
+      // Clear the date filter to show all data
+      setDateFilter(null);
+    }
+    console.log("Date range selected:", { startDate, endDate });
   };
 
   return (
@@ -108,35 +126,18 @@ const RevenueChart: React.FC = () => {
       {/* Chart Header */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex space-x-4" id="tab-buttons">
-          <button
-            className={`py-2 px-4 rounded-md text-sm font-medium transition ${
-              activeTab === "30" 
-                ? "bg-gray-100 text-gray-700" 
-                : "text-gray-500 hover:bg-gray-50"
-            }`}
+          <FilterButton 
+            label="30 Days" 
+            isActive={activeTab === "30"} 
             onClick={() => handleTabChange("30")}
-          >
-            30 Days
-          </button>
-          <button
-            className={`py-2 px-4 rounded-md text-sm font-medium transition  ${
-              
-              activeTab === "90" 
-                ? "bg-gray-100 text-gray-700" 
-                : "text-gray-500 hover:bg-gray-50"
-            }`}
+          />
+          <FilterButton 
+            label="90 Days" 
+            isActive={activeTab === "90"} 
             onClick={() => handleTabChange("90")}
-          >
-            90 Days
-          </button>
+          />
         </div>
-        <button
-         className="flex items-center gap-2 border rounded-md px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
-         onClick={handleDateSelector}
-        >
-          <i className="fas fa-calendar text-sm"></i>
-          <span>Select dates</span>
-        </button>
+        <DateSelector onDateSelect={handleDateSelect} />
       </div>
 
       {/* Chart Legend */}
@@ -152,13 +153,14 @@ const RevenueChart: React.FC = () => {
       </div>
 
       {/* Chart Container */}
-      <div className="h-96">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={chartData}
-            barCategoryGap="15%"
-            margin={{ top: 40, right: 30, left: 20, bottom: 40 }}
-          >
+      <div className="h-96 relative z-0 overflow-hidden">
+        {chartData.length > 0 ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={chartData}
+              barCategoryGap="15%"
+              margin={{ top: 40, right: 30, left: 20, bottom: 40 }}
+            >
             <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
             <XAxis
               dataKey="day"
@@ -215,6 +217,15 @@ const RevenueChart: React.FC = () => {
             />
           </BarChart>
         </ResponsiveContainer>
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <div className="text-gray-400 text-lg mb-2">📊</div>
+              <p className="text-gray-500 text-sm">No data available for the selected date range</p>
+              <p className="text-gray-400 text-xs mt-1">Try selecting a different date range or clear the filter</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

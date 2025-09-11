@@ -11,7 +11,7 @@ const LayoutDashboard: React.FC = () => {
       case "home":
         return <Dashboard />;
       default:
-        return <div>coming soon</div>;
+        return <div className="bg-[#1d1f1f]">coming soon</div>;
     }
   };
 
@@ -25,14 +25,18 @@ const LayoutDashboard: React.FC = () => {
       {/* Main layout with sidebar and content */}
       <div className="flex flex-1 min-h-0">
         {/* Side panel - positioned below title bar */}
-        <div className="flex-shrink-0 h-full">
+        <div className="flex-shrink-0 h-full relative z-10">
           <SidePanel activePage={activePage} onSelect={setActivePage} />
         </div>
 
+    <div className="flex-1 min-h-0 overflow-y-auto bg-[#1d1f1f] relative z-0">
+
         {/* Main content area */}
-        <main className="flex-1 min-h-0 overflow-y-auto bg-gray-100 p-4">
+        <main className="bg-gray-100 px-2 rounded-md relative z-0">
           {renderPage()}
         </main>
+
+    </div>
       </div>
     </div>
   );

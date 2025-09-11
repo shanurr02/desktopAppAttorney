@@ -9,7 +9,7 @@ import { loginSchema, type LoginFormData, type LoginValidationErrors } from "../
 const Login: React.FC = () => {
   const navigate = useNavigate()
   const { login, isLoading, loginError, isLoggedIn } = useAuth()
-  const [userType, setUserType] = useState<"client" | "attorney">("client")
+  const userType = "attorney"
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string>("")
@@ -49,9 +49,9 @@ const Login: React.FC = () => {
     try {
       const response = await login({ email, password })
       
-      // Check if user's group matches selected userType
-      if (response.user.group !== userType) {
-        setError(`This account is for ${response.user.group === 'attorney' ? 'Attorney' : 'Client'} users. Please select the correct user type.`)
+      // Check if user's group matches attorney
+      if (response.user.group !== "attorney") {
+        setError("This account is for Attorney users only.")
         return
       }
       
@@ -77,15 +77,6 @@ const Login: React.FC = () => {
     navigate("/app/forgot-password")
   }
 
-  const handleUserTypeChange = (newUserType: "client" | "attorney") => {
-    setUserType(newUserType)
-    // Clear errors when user changes type
-    if (error && error.includes('account is for')) {
-      setError("")
-    }
-    // Clear validation error for userType
-    clearFieldError('userType')
-  }
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value)
@@ -127,30 +118,6 @@ const Login: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* User Type Toggle */}
-            <div>
-              <div className={`flex bg-gray-100 rounded-lg p-1 shadow-inner ${error && error.includes('account is for') ? 'ring-2 ring-red-300' : ''}`}>
-                <button
-                  type="button"
-                  onClick={() => handleUserTypeChange("client")}
-                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${userType === "client" ? "bg-white text-gray-900 shadow-md" : "text-gray-600 hover:text-gray-900"
-                    }`}
-                >
-                  Client
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleUserTypeChange("attorney")}
-                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${userType === "attorney" ? "bg-white text-gray-900 shadow-md" : "text-gray-600 hover:text-gray-900"
-                    }`}
-                >
-                  Attorney
-                </button>
-              </div>
-              {validationErrors.userType && (
-                <p className="text-red-500 text-sm mt-1">{validationErrors.userType}</p>
-              )}
-            </div>
 
             {/* Email Input */}
             <div>
