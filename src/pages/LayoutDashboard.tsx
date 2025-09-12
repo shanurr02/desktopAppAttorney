@@ -11,7 +11,7 @@ const LayoutDashboard: React.FC = () => {
       case "home":
         return <Dashboard />;
       default:
-        return <div className="bg-[#1d1f1f]">coming soon</div>;
+        return <div>coming soon</div>;
     }
   };
 

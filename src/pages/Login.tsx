@@ -60,12 +60,18 @@ const Login: React.FC = () => {
       // Handle API error responses
       if (err?.response?.data?.error) {
         setError(err.response.data.error)
+      } else if (err?.response?.data?.message) {
+        setError(err.response.data.message)
       } else if (err?.message) {
         setError(err.message)
       } else {
         setError("Login failed. Please check your credentials.")
       }
       console.error("Login error:", err)
+      
+      // Clear form fields on login failure
+      setEmail("")
+      setPassword("")
     }
   }
 
@@ -82,20 +88,16 @@ const Login: React.FC = () => {
     setEmail(e.target.value)
     // Clear validation error for email
     clearFieldError('email')
-    // Clear API error when user starts typing
-    if (error) {
-      setError("")
-    }
+    // Clear all errors when user starts typing
+    setError("")
   }
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value)
     // Clear validation error for password
     clearFieldError('password')
-    // Clear API error when user starts typing
-    if (error) {
-      setError("")
-    }
+    // Clear all errors when user starts typing
+    setError("")
   }
 
 
@@ -118,7 +120,6 @@ const Login: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-
             {/* Email Input */}
             <div>
               <Input
@@ -126,7 +127,6 @@ const Login: React.FC = () => {
                 value={email}
                 onChange={handleEmailChange}
                 placeholder="Enter your email"
-                required
                 autoComplete="email"
                 className={validationErrors.email ? 'border-red-300 focus:border-red-500' : ''}
               />
@@ -142,7 +142,6 @@ const Login: React.FC = () => {
                 value={password}
                 onChange={handlePasswordChange}
                 placeholder="••••••••"
-                required
                 autoComplete="current-password"
                 className={validationErrors.password ? 'border-red-300 focus:border-red-500' : ''}
               />
@@ -163,13 +162,13 @@ const Login: React.FC = () => {
             </div>
 
             {/* Error Message */}
-            {(error || loginError) && (
+            {error && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
                 <div className="flex items-center">
                   <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                   </svg>
-                  <span>{error || "Login failed. Please try again."}</span>
+                  <span>{error}</span>
                 </div>
               </div>
             )}
