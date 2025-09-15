@@ -27,7 +27,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   const Icon = icon === "down" ? ArrowDown : ArrowUp;
 
   return (
-    <div className="rounded-md border bg-gray-50  text-card-foreground shadow-sm p-6">
+    <div className="rounded-md border bg-gray-50 text-card-foreground shadow-sm p-6">
       <p className="text-sm font-medium text-muted-foreground">{title}</p>
 
       <div className="flex items-center gap-2 mt-2">

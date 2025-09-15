@@ -7,6 +7,10 @@
   outline: none !important;
 }
 
+::-webkit-scrollbar{
+  display: none;
+}
+
 *:focus {
   outline: none !important;
   box-shadow: none !important;

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import SidePanel from "../components/SidePanel";
 import Dashboard from "./Dashboard";
+import LoanApplication from "./LoanApplication";
 import CustomTitleBar from "../components/CustomTitleBar";
 
 const LayoutDashboard: React.FC = () => {
@@ -10,6 +11,8 @@ const LayoutDashboard: React.FC = () => {
     switch (activePage) {
       case "home":
         return <Dashboard />;
+      case "layers":
+        return <LoanApplication />;
       default:
         return <div>coming soon</div>;
     }
@@ -29,14 +32,12 @@ const LayoutDashboard: React.FC = () => {
           <SidePanel activePage={activePage} onSelect={setActivePage} />
         </div>
 
-    <div className="flex-1 min-h-0 overflow-y-auto bg-[#1d1f1f] relative z-0">
-
-        {/* Main content area */}
-        <main className="bg-gray-100 px-2 rounded-md relative z-0">
-          {renderPage()}
-        </main>
-
-    </div>
+      <div className="flex-1 min-h-0 overflow-y-auto bg-[#1d1f1f] relative z-0">
+          {/* Main content area */}
+          <main className="bg-gray-100 px-2 rounded-md relative z-0 h-full overflow-y-auto">
+            {renderPage()}
+          </main>
+      </div>
       </div>
     </div>
   );
