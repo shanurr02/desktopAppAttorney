@@ -138,7 +138,7 @@ const Dashboard: React.FC = () => {
       {/* 🔹 Chart + Recent Clients in one row */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
         {/* Revenue Chart takes 2/3 width */}
-        <div className="lg:col-span-3 bg-gray-50 border rounded-lg shadow p-4 relative">
+        <div className="lg:col-span-3 bg-gray-50 border rounded-md shadow p-4 relative">
         <RevenueChart />
         </div>
 

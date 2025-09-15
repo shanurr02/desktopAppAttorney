@@ -2,7 +2,7 @@ import axios from 'axios';
 import { z } from 'zod';
 
 // API Configuration
-const API_BASE_URL = 'http://dev.casefunders.com/api';
+const API_BASE_URL = 'http://dev.casefunders.com';
 
 // Create axios instance with default config
 export const apiClient = axios.create({
@@ -35,7 +35,7 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Only redirect if it's not a login request
-      const isLoginRequest = error.config?.url?.includes('/login/');
+      const isLoginRequest = error.config?.url?.includes('/api/login/');
       
       if (!isLoginRequest) {
         // Token expired or invalid - only redirect for non-login requests

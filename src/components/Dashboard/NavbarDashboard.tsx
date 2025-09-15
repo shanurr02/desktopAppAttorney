@@ -31,7 +31,7 @@ const NavbarDashboard: React.FC = () => {
   return (
     <div className="bg-gray-100 border-b"> 
       {/* Inner container with border under content */}
-      <div className="flex items-center justify-between py-3 ">
+      <div className="flex flex-col md:flex-row max-md:gap-2 md:items-center md:justify-between py-3 "> 
         {/* Left */}
         <WelcomeMessage name={userName} />
 
