@@ -4,6 +4,7 @@ import {
     PersonalDetailsStep,
     EmploymentDetailsStep,
     SubmitOffersStep,
+    ThankYouStep,
     StepperNav
 } from "../components";
 import { useLoanForm, useFormValidation } from "../hooks";
@@ -49,6 +50,7 @@ const LoanApplication: React.FC = () => {
 
     const [error, setError] = useState<string>("");
     const [successMessage, setSuccessMessage] = useState<string>("");
+    const [showThankYou, setShowThankYou] = useState<boolean>(false);
 
     // Formatting functions
     const formatSSN = (value: string) => {
@@ -208,6 +210,7 @@ const LoanApplication: React.FC = () => {
         setEmployer_name("");
         setError("");
         setSuccessMessage("");
+        setShowThankYou(false);
         setCurrentStep(0);
         setCompletedSteps([]);
         clearAllErrors();
@@ -228,11 +231,7 @@ const LoanApplication: React.FC = () => {
                 
                 // Check if response indicates success
                 if (result.status === "Email Sent Successfully") {
-                    setSuccessMessage("Application submitted successfully! Email sent to your registered email address.");
-                    // Reset form after a short delay to show success message
-                    setTimeout(() => {
-                        resetForm();
-                    }, 3000);
+                    setShowThankYou(true);
                 }
             }
         } catch (err: any) {
@@ -253,6 +252,11 @@ const LoanApplication: React.FC = () => {
                 setError("Application submission failed. Please try again.");
             }
         }
+    };
+
+    // Handle start new application
+    const handleStartNewApplication = () => {
+        resetForm();
     };
 
     // ===== STEP HANDLERS =====
@@ -398,6 +402,15 @@ const LoanApplication: React.FC = () => {
 
     // Render current step
     const renderCurrentStep = () => {
+        // Show Thank You page if submission was successful
+        if (showThankYou) {
+            return (
+                <ThankYouStep
+                    onStartNewApplication={handleStartNewApplication}
+                />
+            );
+        }
+
         const formData = getFormData();
         switch (currentStep) {
             case 0:
@@ -478,14 +491,16 @@ const LoanApplication: React.FC = () => {
                         process. We've simplified access to the funds disbursement.
                     </div>
                 </div>
-                {/* Top Stepper */}
-                <div className="border-b border-gray-200 py-4 ">
-                    <StepperNav
-                        currentStep={currentStep}
-                        completedSteps={completedSteps}
-                        steps={steps}
-                    />
-                </div>
+                {/* Top Stepper - Hide when showing Thank You page */}
+                {!showThankYou && (
+                    <div className="border-b border-gray-200 py-4 ">
+                        <StepperNav
+                            currentStep={currentStep}
+                            completedSteps={completedSteps}
+                            steps={steps}
+                        />
+                    </div>
+                )}
 
 
                 {/* Main Content */}
