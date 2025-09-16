@@ -20,7 +20,7 @@ const StepperNav: React.FC<StepperNavProps> = ({ currentStep, completedSteps, st
   ];
 
   return (
-    <ul className="relative flex flex-col sm:flex-row gap-2 sm:gap-x-2 rounded-md border bg-gray-50 text-card-foreground shadow-sm p-4">
+    <ul className="relative flex flex-col sm:flex-row gap-2 sm:gap-x-2 rounded-md border bg-emerald-50 text-card-foreground shadow-sm p-4">
       {stepLabels.map((label, idx) => {
         // Stepper logic for active/completed
         const isActive = currentStep === idx;

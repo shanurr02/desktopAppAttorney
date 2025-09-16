@@ -493,7 +493,7 @@ const LoanApplication: React.FC = () => {
                 </div>
                 {/* Top Stepper - Hide when showing Thank You page */}
                 {!showThankYou && (
-                    <div className="border-b border-gray-200 py-4 ">
+                    <div className=" py-2 ">
                         <StepperNav
                             currentStep={currentStep}
                             completedSteps={completedSteps}
@@ -504,7 +504,7 @@ const LoanApplication: React.FC = () => {
 
 
                 {/* Main Content */}
-                <div className="flex-1 overflow-y-auto border-gray-200 rounded-md border bg-gray-50 text-card-foreground shadow-sm p-4">
+                <div className="flex-1 overflow-y-auto border-gray-200 rounded-md border bg-white text-card-foreground shadow-sm p-4">
                     {renderCurrentStep()}
                 </div>
             </div>
