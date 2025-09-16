@@ -36,7 +36,7 @@ const LoanRequestStep: React.FC<LoanRequestStepProps> = ({
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Loan Amount
           </label>
-          <div className="relative w-80">
+          <div className="relative  sm:w-80">
             <div className="flex border-[1px] shadow-sm pl-[8px] pr-[2px] border-gray-300 bg-white h-10 rounded-md">
               <span className="inline-flex items-center pr-[8px] text-gray-500 text-lg font-medium rounded-l-lg">
                 $

@@ -24,7 +24,7 @@ const LoanApplication: React.FC = () => {
     } = useFormValidation<LoanValidationErrors>(loanSchema);
 
     // Step management
-    const [currentStep, setCurrentStep] = useState(0);
+    const [currentStep, setCurrentStep] = useState(1);
     const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
     // Form state - individual fields like Login.tsx

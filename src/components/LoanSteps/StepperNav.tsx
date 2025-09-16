@@ -57,7 +57,7 @@ const StepperNav: React.FC<StepperNavProps> = ({ currentStep, completedSteps, st
                   </svg>
                 )}
               </span>
-              <span className="ms-2 text-sm font-medium text-gray-800 group-focus:text-gray-500 hidden sm:block">
+              <span className="ms-2 text-sm font-medium text-gray-800 group-focus:text-gray-500 block">
                 {label}
               </span>
             </span>

@@ -209,7 +209,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
         </div>
 
         {/* DOB and SSN - Responsive columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
             <DateSelector
@@ -260,68 +260,8 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
         </div>
 
         {/* City, State, ZIP - Responsive columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              City
-              {isStateDropdownDisabled && (
-                <span className="text-xs text-green-600 ml-1">(Auto-filled)</span>
-              )}
-            </label>
-            <input
-              type="text"
-              value={formData.city}
-              onChange={onCityChange}
-              placeholder="City"
-              disabled={isStateDropdownDisabled}
-              className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
-                isStateDropdownDisabled 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-white text-gray-700'
-              } ${validationErrors.city ? 'border-red-300 focus:border-red-500' : 'border-gray-300'}`}
-            />
-            {validationErrors.city && (
-              <p className="text-red-500 text-xs">{validationErrors.city}</p>
-            )}
-            {isStateDropdownDisabled && (
-              <p className="text-xs text-green-600 mt-1">
-                City will be automatically filled from ZIP code
-              </p>
-            )}
-          </div>
-
-           <div>
-             <label className="block text-sm font-medium text-gray-700 mb-1">
-               State
-               {isStateDropdownDisabled && (
-                 <span className="text-xs text-green-600 ml-1">(Auto-filled)</span>
-               )}
-             </label>
-             <select
-               value={formData.state}
-               onChange={onStateChange}
-               disabled={isStateDropdownDisabled}
-               className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
-                 isStateDropdownDisabled 
-                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                   : 'bg-white text-gray-500'
-               } ${validationErrors.state ? 'border-red-300 focus:border-red-500' : 'border-gray-300'}`}
-             >
-               <option value="">State</option>
-               {stateOptions.map((state) => (
-                 <option key={state.value} value={state.value}>
-                   {state.label}
-                 </option>
-               ))}
-             </select>
-             {isStateDropdownDisabled && (
-               <p className="text-xs text-green-600 mt-1">
-                 State will be automatically filled from ZIP code
-               </p>
-             )}
-           </div>
-
-          <div>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 mb-3">
+        <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">ZIP Code</label>
             <div className="flex gap-2">
               <div className="relative flex-1">
@@ -353,10 +293,71 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
               <p className="text-red-500 text-xs">{validationErrors.zip_code}</p>
             )}
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              City
+              {isStateDropdownDisabled && (
+                <span className="text-xs text-gray-400 ml-1">(Auto-filled)</span>
+              )}
+            </label>
+            <input
+              type="text"
+              value={formData.city}
+              onChange={onCityChange}
+              placeholder="City"
+              disabled={isStateDropdownDisabled}
+              className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
+                isStateDropdownDisabled 
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                  : 'bg-white text-gray-700'
+              } ${validationErrors.city ? 'border-red-300 focus:border-red-500' : 'border-gray-300'}`}
+            />
+            {validationErrors.city && (
+              <p className="text-red-500 text-xs">{validationErrors.city}</p>
+            )}
+            {isStateDropdownDisabled && (
+              <p className="text-xs text-gray-400 mt-1">
+                City will be automatically filled from ZIP code
+              </p>
+            )}
+          </div>
+
+           <div>
+             <label className="block text-sm font-medium text-gray-700 mb-1">
+               State
+               {isStateDropdownDisabled && (
+                 <span className="text-xs text-gray-400 ml-1">(Auto-filled)</span>
+               )}
+             </label>
+             <select
+               value={formData.state}
+               onChange={onStateChange}
+               disabled={isStateDropdownDisabled}
+               className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
+                 isStateDropdownDisabled 
+                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                   : 'bg-white text-gray-500'
+               } ${validationErrors.state ? 'border-red-300 focus:border-red-500' : 'border-gray-300'}`}
+             >
+               <option value="">State</option>
+               {stateOptions.map((state) => (
+                 <option key={state.value} value={state.value}>
+                   {state.label}
+                 </option>
+               ))}
+             </select>
+             {isStateDropdownDisabled && (
+               <p className="text-xs text-gray-400 mt-1">
+                 State will be automatically filled from ZIP code
+               </p>
+             )}
+           </div>
+
+         
         </div>
 
         {/* Months at Address and Monthly Rent - Responsive columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Months at Address</label>
             <Input

@@ -2,7 +2,6 @@ export { default as Input } from './Input';
 export { default as Button } from './Button';
 export { default as Select } from './Select';
 export { default as FormSection } from './FormSection';
-export { default as Stepper } from './Stepper';
 export { default as ProtectedRoute } from './ProtectedRoute';
 
 // Loan Steps Components
