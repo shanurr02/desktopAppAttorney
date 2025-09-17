@@ -142,7 +142,8 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
 
   const isFormValid = formData.firstname && formData.last_name && formData.email &&
     formData.dob && formData.ssn && formData.phone_number &&
-    formData.street_address && formData.city && formData.state && formData.zip_code;
+    formData.street_address && formData.city && formData.state && formData.zip_code &&
+    formData.months_at_address && formData.monthly_rent;
 
   return (
     <form className="flex-1 w-full">
@@ -305,7 +306,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
               value={formData.city}
               onChange={onCityChange}
               placeholder="City"
-              disabled={isStateDropdownDisabled}
+              // disabled={isStateDropdownDisabled}
               className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
                 isStateDropdownDisabled 
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
@@ -332,7 +333,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
              <select
                value={formData.state}
                onChange={onStateChange}
-               disabled={isStateDropdownDisabled}
+              //  dis abled={isStateDropdownDisabled}
                className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
                  isStateDropdownDisabled 
                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 

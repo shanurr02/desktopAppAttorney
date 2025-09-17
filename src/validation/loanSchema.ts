@@ -7,8 +7,8 @@ export const loanSchema = z.object({
     .regex(/^\d+$/, 'Loan amount must be a number')
     .refine((val) => {
       const num = parseInt(val);
-      return num >= 1 && num <= 1000;
-    }, 'Loan amount must be between $1 and $1000'),
+      return num >= 1 && num <= 50000;
+    }, 'Loan amount must be between $1 and $50000'),
   residence_type: z.string().min(1, 'Residence type is required'),
   next_page: z.string().optional(),
   firstname: z.string().min(1, 'First name is required').min(2, 'First name must be at least 2 characters'),

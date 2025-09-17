@@ -51,7 +51,7 @@ const LoanRequestStep: React.FC<LoanRequestStepProps> = ({
                 placeholder="0.00"
                 style={{ appearance: "textfield", MozAppearance: "textfield" }}
                 min="1"
-                max="1000"
+                max="50000"
               />
             </div>
             {validationErrors.loan_amount && (
@@ -60,7 +60,7 @@ const LoanRequestStep: React.FC<LoanRequestStepProps> = ({
               </p>
             )}
             <p className="text-xs text-gray-400 mt-1">
-              Maximum amount is $1,000.
+              Maximum amount is $50,000.
             </p>
           </div>
         </div>

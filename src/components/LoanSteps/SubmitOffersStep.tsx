@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Button } from '../index';
-import { LoanFormData } from '../../validation';
+import { LoanFormData, LoanValidationErrors } from '../../validation';
 
 interface SubmitOffersStepProps {
   formData: LoanFormData;
+  validationErrors: LoanValidationErrors;
   error: string;
   isSubmitting: boolean;
   onPrevious: () => void;
@@ -13,6 +14,7 @@ interface SubmitOffersStepProps {
 
 const SubmitOffersStep: React.FC<SubmitOffersStepProps> = ({
   formData,
+  validationErrors,
   error,
   isSubmitting,
   onPrevious,
@@ -83,6 +85,25 @@ const SubmitOffersStep: React.FC<SubmitOffersStepProps> = ({
             </div>
           </div>
         </div>
+        
+        {/* Validation Errors Display */}
+        {Object.keys(validationErrors).length > 0 && (
+          <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
+            <div className="flex items-center mb-2">
+              <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              <span className="font-medium">Please fix the following errors:</span>
+            </div>
+            <ul className="list-disc list-inside space-y-1">
+              {Object.entries(validationErrors).map(([field, message]) => (
+                <li key={field} className="text-xs">
+                  <span className="font-medium capitalize">{field.replace('_', ' ')}:</span> {message}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         
         {/* Success Message */}
         {successMessage && (

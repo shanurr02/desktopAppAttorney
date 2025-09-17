@@ -10,6 +10,7 @@ import {
 import { useLoanForm, useFormValidation } from "../hooks";
 import { LoanFormData, type LoanValidationErrors } from "../validation";
 import { loanSchema } from "../validation/loanSchema";
+import { extractZodErrors } from "../utils";
 import NavbarDashboard from "../components/Dashboard/NavbarDashboard";
 
 const LoanApplication: React.FC = () => {
@@ -21,6 +22,7 @@ const LoanApplication: React.FC = () => {
         validate,
         clearFieldError,
         clearAllErrors,
+        setFieldError,
     } = useFormValidation<LoanValidationErrors>(loanSchema);
 
     // Step management
@@ -75,7 +77,7 @@ const LoanApplication: React.FC = () => {
         const digits = value.replace(/\D/g, '');
         let num = parseInt(digits, 10);
         if (isNaN(num)) return '';
-        if (num > 1000) num = 1000;
+        if (num > 50000) num = 50000;
         return num.toString();
     };
 
@@ -103,38 +105,105 @@ const LoanApplication: React.FC = () => {
         employer_name,
     }), [loan_amount, residence_type, firstname, last_name, email, dob, ssn, street_address, city, state, months_at_address, monthly_rent, zip_code, phone_number, income_source, pay_frequency, monthly_income, months_at_employer, employer_name]);
 
-    // Step validation - validate specific fields for each step
+    // Step validation - validate specific fields for each step with proper error handling
     const validateStep = useCallback((step: number, formData: LoanFormData) => {
+        console.log(`Validating step ${step}:`, formData);
         try {
             switch (step) {
                 case 0: // Loan Request
+                    // Validate loan amount and residence type
                     if (!formData.loan_amount || !formData.residence_type) {
+                        return false;
+                    }
+                    // Additional validation for loan amount format
+                    const loanAmount = parseInt(formData.loan_amount);
+                    if (isNaN(loanAmount) || loanAmount < 1 || loanAmount > 50000) {
+                        setFieldError('loan_amount', 'Loan amount must be between $1 and $1000');
                         return false;
                     }
                     break;
                 case 1: // Personal Details
-                    if (!formData.firstname || !formData.last_name || !formData.email || 
-                        !formData.dob || !formData.ssn || !formData.phone_number ||
-                        !formData.street_address || !formData.city || !formData.state ||
-                        !formData.zip_code || !formData.months_at_address || !formData.monthly_rent) {
+                    // Check required fields
+                    const requiredPersonalFields = [
+                        'firstname', 'last_name', 'email', 'dob', 'ssn', 'phone_number',
+                        'street_address', 'city', 'state', 'zip_code', 'months_at_address', 'monthly_rent'
+                    ];
+                    for (const field of requiredPersonalFields) {
+                        if (!formData[field as keyof LoanFormData]) {
+                            setFieldError(field as keyof LoanValidationErrors, `${field.replace('_', ' ')} is required`);
+                            return false;
+                        }
+                    }
+                    // Validate email format
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(formData.email)) {
+                        setFieldError('email', 'Please enter a valid email address');
                         return false;
+                    }
+                    // Validate SSN format
+                    const ssnRegex = /^\d{3}-\d{2}-\d{4}$/;
+                    if (!ssnRegex.test(formData.ssn)) {
+                        setFieldError('ssn', 'SSN must be in XXX-XX-XXXX format');
+                        return false;
+                    }
+                    // Validate phone format
+                    const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
+                    if (!phoneRegex.test(formData.phone_number)) {
+                        setFieldError('phone_number', 'Phone must be in (XXX) XXX-XXXX format');
+                        return false;
+                    }
+                    // Validate ZIP code format
+                    const zipRegex = /^\d{5}(-\d{4})?$/;
+                    if (!zipRegex.test(formData.zip_code)) {
+                        setFieldError('zip_code', 'Invalid zip code format');
+                        return false;
+                    }
+                    // Validate numeric fields for personal details
+                    const personalNumericFields = ['months_at_address', 'monthly_rent'];
+                    for (const field of personalNumericFields) {
+                        const value = formData[field as keyof LoanFormData];
+                        if (!value || !/^\d+$/.test(value)) {
+                            setFieldError(field as keyof LoanValidationErrors, `${field.replace('_', ' ')} must be a number`);
+                            return false;
+                        }
                     }
                     break;
                 case 2: // Employment Details
-                    if (!formData.employer_name || !formData.months_at_employer ||
-                        !formData.income_source || !formData.pay_frequency || !formData.monthly_income) {
-                        return false;
+                    // Check required fields
+                    const requiredEmploymentFields = [
+                        'employer_name', 'months_at_employer', 'income_source', 'pay_frequency', 'monthly_income'
+                    ];
+                    for (const field of requiredEmploymentFields) {
+                        if (!formData[field as keyof LoanFormData]) {
+                            setFieldError(field as keyof LoanValidationErrors, `${field.replace('_', ' ')} is required`);
+                            return false;
+                        }
+                    }
+                    // Validate numeric fields
+                    const numericFields = ['months_at_employer', 'monthly_income'];
+                    for (const field of numericFields) {
+                        const value = formData[field as keyof LoanFormData];
+                        if (!value || !/^\d+$/.test(value)) {
+                            setFieldError(field as keyof LoanValidationErrors, `${field.replace('_', ' ')} must be a number`);
+                            return false;
+                        }
                     }
                     break;
-                case 3: // Submit Offers - validate all fields
+                case 3: // Submit Offers - validate all fields using full schema
                     loanSchema.parse(formData);
                     break;
             }
             return true;
         } catch (error) {
+            // Parse validation errors and set them using the validation hook
+            const validationErrors = extractZodErrors<LoanValidationErrors>(error);
+            // Set each field error individually
+            Object.entries(validationErrors).forEach(([field, message]) => {
+                setFieldError(field as keyof LoanValidationErrors, message as string);
+            });
             return false;
         }
-    }, []);
+    }, [setFieldError]);
 
     // Stepper configuration
     const steps = [
@@ -163,19 +232,20 @@ const LoanApplication: React.FC = () => {
     // Step navigation
     const goToNextStep = () => {
         setError("");
-        clearAllErrors();
 
         // Validate current step before proceeding
         const formData = getFormData();
         const isValid = validateStep(currentStep, formData);
 
         if (isValid) {
+            // Clear errors only if validation passes
+            clearAllErrors();
             if (currentStep < steps.length - 1) {
                 setCompletedSteps(prev => [...prev, currentStep]);
                 setCurrentStep(prev => prev + 1);
             }
         } else {
-            setError("Please fill in all required fields correctly.");
+            setError("Please fix the validation errors below before continuing.");
         }
     };
 
@@ -220,10 +290,35 @@ const LoanApplication: React.FC = () => {
     const handleSubmit = async () => {
         setError("");
         setSuccessMessage("");
-        clearAllErrors();
+
+        // Validate the complete form before submission
+        const formData = getFormData();
+        
+        // Check if any required fields are empty
+        const requiredFields = [
+            'loan_amount', 'residence_type', 'firstname', 'last_name', 'email', 
+            'dob', 'ssn', 'phone_number', 'street_address', 'city', 'state', 
+            'zip_code', 'months_at_address', 'monthly_rent', 'employer_name', 
+            'months_at_employer', 'income_source', 'pay_frequency', 'monthly_income'
+        ];
+        
+        const emptyFields = requiredFields.filter(field => !formData[field as keyof LoanFormData]);
+        if (emptyFields.length > 0) {
+            setError(`Please fill in the following required fields: ${emptyFields.join(', ')}`);
+            return;
+        }
+        
+        const isValid = validateStep(3, formData); // Step 3 = Submit Offers (full validation)
+
+        if (!isValid) {
+            setError("Please fix all validation errors before submitting.");
+            return;
+        }
 
         try {
-            const formData = getFormData();
+            console.log("Submitting form data:", formData);
+            console.log("Form data keys:", Object.keys(formData));
+            console.log("Form data values:", Object.values(formData));
             const result = await submitApplication(formData);
             if (result) {
                 console.log("Application submitted successfully:", result);
@@ -465,6 +560,7 @@ const LoanApplication: React.FC = () => {
                 return (
                     <SubmitOffersStep
                         formData={formData}
+                        validationErrors={validationErrors}
                         error={error}
                         isSubmitting={isSubmitting}
                         onPrevious={goToPreviousStep}

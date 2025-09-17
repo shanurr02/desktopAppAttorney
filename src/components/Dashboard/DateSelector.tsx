@@ -42,6 +42,8 @@ const DateSelector: React.FC<DateSelectorProps> = ({
 
   // Close calendar when clicking outside
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleClickOutside = (event: MouseEvent) => {
       if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
         setIsOpen(false);
@@ -50,11 +52,16 @@ const DateSelector: React.FC<DateSelectorProps> = ({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    // Add a small delay to prevent immediate closure on first click
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+    }, 100);
+
     return () => {
+      clearTimeout(timeoutId);
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [isOpen]);
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-US', { 
@@ -73,7 +80,12 @@ const DateSelector: React.FC<DateSelectorProps> = ({
     return label;
   };
 
-  const handleDateClick = (date: Date) => {
+  const handleDateClick = (date: Date, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     if (singleDate) {
       // Single date selection (like DOB)
       setStartDate(date);
@@ -198,10 +210,17 @@ const DateSelector: React.FC<DateSelectorProps> = ({
     return years;
   };
 
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsOpen(!isOpen);
+  };
+
   return (
     <div className="relative" ref={calendarRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        type="button"
+        onClick={handleButtonClick}
         className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 bg-white ${className}`}
       >
         <Calendar size={16} />
@@ -214,6 +233,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({
             {/* Month Navigation Header */}
             <div className="flex items-center justify-between mb-3">
               <button
+                type="button"
                 onClick={goToPreviousMonth}
                 className="p-1 hover:bg-gray-100 rounded-md transition-colors duration-150"
                 title="Previous month"
@@ -225,6 +245,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({
                 {/* Month Dropdown */}
                 <div className="relative">
                   <button
+                    type="button"
                     onClick={() => setShowMonthDropdown(!showMonthDropdown)}
                     className="text-sm font-medium text-gray-900 hover:text-gray-700 px-2 py-1 hover:bg-gray-100 rounded transition-colors duration-150"
                   >
@@ -235,6 +256,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({
                       {getMonthOptions().map((month) => (
                         <button
                           key={month.value}
+                          type="button"
                           onClick={() => handleMonthChange(month.value)}
                           className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 transition-colors duration-150 ${
                             month.value === currentMonth.getMonth()
@@ -252,6 +274,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({
                 {/* Year Dropdown */}
                 <div className="relative">
                   <button
+                    type="button"
                     onClick={() => setShowYearDropdown(!showYearDropdown)}
                     className="text-sm font-medium text-gray-900 hover:text-gray-700 px-2 py-1 hover:bg-gray-100 rounded transition-colors duration-150"
                   >
@@ -262,6 +285,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({
                       {getYearOptions().map((year) => (
                         <button
                           key={year.value}
+                          type="button"
                           onClick={() => handleYearChange(year.value)}
                           className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 transition-colors duration-150 ${
                             year.value === getYear(currentMonth)
@@ -277,6 +301,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({
                 </div>
 
                 <button
+                  type="button"
                   onClick={goToCurrentMonth}
                   className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 hover:bg-gray-100 rounded transition-colors duration-150"
                   title="Go to current month"
@@ -304,7 +329,8 @@ const DateSelector: React.FC<DateSelectorProps> = ({
               {generateCalendarDays().map((date, index) => (
                 <button
                   key={index}
-                  onClick={() => handleDateClick(date)}
+                  type="button"
+                  onClick={(e) => handleDateClick(date, e)}
                   onMouseEnter={() => setHoveredDate(date)}
                   onMouseLeave={() => setHoveredDate(null)}
                   className={`p-2 text-center text-sm rounded-md transition-all duration-150 ease-in-out transform hover:scale-105 ${
