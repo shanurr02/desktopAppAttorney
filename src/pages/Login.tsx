@@ -80,7 +80,7 @@ const Login: React.FC = () => {
   }
 
   const handleForgotPassword = () => {
-    navigate("/app/forgot-password")
+    navigate("https://casefunders.inverosoft.com/forgot_password/")
   }
 
 

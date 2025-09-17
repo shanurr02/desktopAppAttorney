@@ -150,7 +150,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
         {/* Personal Information - Responsive columns */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">First Name <span className="text-red-500">*</span></label>
             <Input
               type="text"
               value={formData.firstname}
@@ -164,7 +164,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Last Name <span className="text-red-500">*</span></label>
             <Input
               type="text"
               value={formData.last_name}
@@ -178,7 +178,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email <span className="text-red-500">*</span></label>
             <Input
               type="email"
               value={formData.email}
@@ -193,7 +193,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Phone <span className="text-red-500">*</span></label>
             <input
               type="text"
               value={formData.phone_number}
@@ -209,9 +209,9 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
         </div>
 
         {/* DOB and SSN - Responsive columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth <span className="text-red-500">*</span></label>
             <DateSelector
               label="Select date of birth"
               onDateSelect={onDobDateSelect}
@@ -224,7 +224,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">SSN</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1"> Social Security Number (SSN) <span className="text-red-500">*</span></label>
             <input
               type="text"
               value={formData.ssn}
@@ -246,7 +246,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
 
         {/* Street Address */}
         <div className="mb-3">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Street Address <span className="text-red-500">*</span></label>
           <Input
             type="text"
             value={formData.street_address}
@@ -260,69 +260,9 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
         </div>
 
         {/* City, State, ZIP - Responsive columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              City
-              {isStateDropdownDisabled && (
-                <span className="text-xs text-green-600 ml-1">(Auto-filled)</span>
-              )}
-            </label>
-            <input
-              type="text"
-              value={formData.city}
-              onChange={onCityChange}
-              placeholder="City"
-              disabled={isStateDropdownDisabled}
-              className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
-                isStateDropdownDisabled 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-white text-gray-700'
-              } ${validationErrors.city ? 'border-red-300 focus:border-red-500' : 'border-gray-300'}`}
-            />
-            {validationErrors.city && (
-              <p className="text-red-500 text-xs">{validationErrors.city}</p>
-            )}
-            {isStateDropdownDisabled && (
-              <p className="text-xs text-green-600 mt-1">
-                City will be automatically filled from ZIP code
-              </p>
-            )}
-          </div>
-
-           <div>
-             <label className="block text-sm font-medium text-gray-700 mb-1">
-               State
-               {isStateDropdownDisabled && (
-                 <span className="text-xs text-green-600 ml-1">(Auto-filled)</span>
-               )}
-             </label>
-             <select
-               value={formData.state}
-               onChange={onStateChange}
-               disabled={isStateDropdownDisabled}
-               className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
-                 isStateDropdownDisabled 
-                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                   : 'bg-white text-gray-500'
-               } ${validationErrors.state ? 'border-red-300 focus:border-red-500' : 'border-gray-300'}`}
-             >
-               <option value="">State</option>
-               {stateOptions.map((state) => (
-                 <option key={state.value} value={state.value}>
-                   {state.label}
-                 </option>
-               ))}
-             </select>
-             {isStateDropdownDisabled && (
-               <p className="text-xs text-green-600 mt-1">
-                 State will be automatically filled from ZIP code
-               </p>
-             )}
-           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">ZIP Code</label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+        <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">ZIP Code <span className="text-red-500">*</span></label>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <input
@@ -353,12 +293,73 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
               <p className="text-red-500 text-xs">{validationErrors.zip_code}</p>
             )}
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              City <span className="text-red-500">*</span>
+              {isStateDropdownDisabled && (
+                <span className="text-xs text-gray-400 ml-1">(Auto-filled)</span>
+              )}
+            </label>
+            <input
+              type="text"
+              value={formData.city}
+              onChange={onCityChange}
+              placeholder="City"
+              disabled={isStateDropdownDisabled}
+              className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
+                isStateDropdownDisabled 
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                  : 'bg-white text-gray-700'
+              } ${validationErrors.city ? 'border-red-300 focus:border-red-500' : 'border-gray-300'}`}
+            />
+            {validationErrors.city && (
+              <p className="text-red-500 text-xs">{validationErrors.city}</p>
+            )}
+            {isStateDropdownDisabled && (
+              <p className="text-xs text-gray-400 mt-1">
+                City will be automatically filled from ZIP code
+              </p>
+            )}
+          </div>
+
+           <div>
+             <label className="block text-sm font-medium text-gray-700 mb-1">
+               State <span className="text-red-500">*</span>
+               {isStateDropdownDisabled && (
+                 <span className="text-xs text-gray-400 ml-1">(Auto-filled)</span>
+               )}
+             </label>
+             <select
+               value={formData.state}
+               onChange={onStateChange}
+               disabled={isStateDropdownDisabled}
+               className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
+                 isStateDropdownDisabled 
+                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                   : 'bg-white text-gray-500'
+               } ${validationErrors.state ? 'border-red-300 focus:border-red-500' : 'border-gray-300'}`}
+             >
+               <option value="">State</option>
+               {stateOptions.map((state) => (
+                 <option key={state.value} value={state.value}>
+                   {state.label}
+                 </option>
+               ))}
+             </select>
+             {isStateDropdownDisabled && (
+               <p className="text-xs text-gray-400 mt-1">
+                 State will be automatically filled from ZIP code
+               </p>
+             )}
+           </div>
+
+         
         </div>
 
         {/* Months at Address and Monthly Rent - Responsive columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Months at Address</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Months at Address <span className="text-red-500">*</span></label>
             <Input
               type="text"
               value={formData.months_at_address}
@@ -372,7 +373,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Monthly Rent</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Monthly Rent <span className="text-red-500">*</span></label>
             <Input
               type="text"
               value={formData.monthly_rent}

@@ -34,9 +34,9 @@ const LoanRequestStep: React.FC<LoanRequestStepProps> = ({
         {/* Loan Amount Section */}
         <div className="mb-3">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Loan Amount
+            Loan Amount <span className="text-red-500">*</span>
           </label>
-          <div className="relative w-80">
+          <div className="relative  sm:w-80">
             <div className="flex border-[1px] shadow-sm pl-[8px] pr-[2px] border-gray-300 bg-white h-10 rounded-md">
               <span className="inline-flex items-center pr-[8px] text-gray-500 text-lg font-medium rounded-l-lg">
                 $
@@ -59,13 +59,16 @@ const LoanRequestStep: React.FC<LoanRequestStepProps> = ({
                 {validationErrors.loan_amount}
               </p>
             )}
+            <p className="text-xs text-gray-400 mt-1">
+              Maximum amount is $1,000.
+            </p>
           </div>
         </div>
 
         {/* Residence Type Section */}
         <div className="mb-3">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Do you rent or own a home?
+            Do you rent or own a home? <span className="text-red-500">*</span>
           </label>
           <div className="flex gap-3">
             <div className="flex flex-wrap gap-2">

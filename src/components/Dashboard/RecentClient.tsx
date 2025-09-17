@@ -26,7 +26,9 @@ const RecentClient: React.FC<RecentClientProps> = ({ clients }) => {
     <div className="bg-gray-50 border rounded-md shadow p-4">
       <div className="flex justify-between items-center mb-3">
         <h2 className="text-sm font-semibold text-gray-800">Recent clients</h2>
-        <button className="text-xs text-blue-600 hover:underline">View all</button>
+        <button className={`py-2 px-4 rounded-md text-sm font-medium transition bg-gray-100 hover:bg-slate-200 text-gray-900 `} >View all</button>
+
+   
       </div>
 
       <div className="space-y-4">

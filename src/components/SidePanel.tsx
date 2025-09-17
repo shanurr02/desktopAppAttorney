@@ -2,16 +2,15 @@ import {
   ArrowLeftRight,
   BarChart3,
   Bell,
-  ChartPie,
   DollarSign,
   Home,
   Layers,
   LogOut,
   Menu,
-  RotateCcw,
   Send,
   Settings,
   User,
+  File
 } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -26,12 +25,13 @@ type SidePanelProps = {
 const menuItems = [
   { id: "menu", label: "", icon: Menu, isHamburger: true },
   { id: "home", label: "Dashboard", icon: Home, isHamburger: false },
-  { id: "finance", label: "Process Payment", icon: DollarSign, isHamburger: false },
+  { id: "finance", label: "Collect Payment", icon: DollarSign, isHamburger: false },
   { id: "layers", label: "Start Application", icon: Layers, isHamburger: false },
+  { id: "all", label: "All Application", icon: File, isHamburger: false },
   { id: "send", label: "Invite Client", icon: Send, isHamburger: false },
-  { id: "timer", label: "Payment Plans", icon: ChartPie, isHamburger: false },
+  // { id: "timer", label: "Payment Plans", icon: ChartPie, isHamburger: false },
   { id: "compass", label: "Transactions", icon: ArrowLeftRight, isHamburger: false },
-  { id: "refresh", label: "Refund", icon: RotateCcw, isHamburger: false },
+  // { id: "refresh", label: "Refund", icon: RotateCcw, isHamburger: false },
   { id: "chart", label: "Reports", icon: BarChart3, isHamburger: false },
 ] as const;
 
