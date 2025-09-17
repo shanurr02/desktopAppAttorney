@@ -53,7 +53,7 @@ const EmploymentDetailsStep: React.FC<EmploymentDetailsStepProps> = ({
         {/* Employment Information - Responsive columns */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Employer Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Employer Name <span className="text-red-500">*</span></label>
             <Input
               type="text"
               value={formData.employer_name}
@@ -67,7 +67,7 @@ const EmploymentDetailsStep: React.FC<EmploymentDetailsStepProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Months at Employer</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Months at Employer <span className="text-red-500">*</span></label>
             <Input
               type="text"
               value={formData.months_at_employer}
@@ -81,7 +81,7 @@ const EmploymentDetailsStep: React.FC<EmploymentDetailsStepProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Monthly Income</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Monthly Income <span className="text-red-500">*</span></label>
             <Input
               type="text"
               value={formData.monthly_income}
@@ -98,7 +98,7 @@ const EmploymentDetailsStep: React.FC<EmploymentDetailsStepProps> = ({
         {/* Income Source and Pay Frequency - Responsive columns */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Income Source</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Source of Income <span className="text-red-500">*</span></label>
             <select
               value={formData.income_source}
               onChange={onIncomeSourceChange}
@@ -117,7 +117,7 @@ const EmploymentDetailsStep: React.FC<EmploymentDetailsStepProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Pay Frequency</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Pay Frequency <span className="text-red-500">*</span></label>
             <select
               value={formData.pay_frequency}
               onChange={onPayFrequencyChange}
