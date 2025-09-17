@@ -22,6 +22,7 @@ interface DateSelectorProps {
   className?: string;
   placeholder?: string;
   singleDate?: boolean; // New prop for single date selection (like DOB)
+  value?: string; // Current date value in string format (MM/DD/YYYY for DOB)
 }
 
 const DateSelector: React.FC<DateSelectorProps> = ({
@@ -30,6 +31,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({
   className = "",
   placeholder,
   singleDate = false,
+  value,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [startDate, setStartDate] = useState<Date | null>(null);
@@ -39,6 +41,27 @@ const DateSelector: React.FC<DateSelectorProps> = ({
   const [showMonthDropdown, setShowMonthDropdown] = useState(false);
   const [showYearDropdown, setShowYearDropdown] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
+
+  // Parse value prop and set initial state
+  useEffect(() => {
+    if (value && singleDate) {
+      // Parse MM/DD/YYYY format
+      const dateParts = value.split('/');
+      if (dateParts.length === 3) {
+        const month = parseInt(dateParts[0], 10) - 1; // JavaScript months are 0-indexed
+        const day = parseInt(dateParts[1], 10);
+        const year = parseInt(dateParts[2], 10);
+        const parsedDate = new Date(year, month, day);
+        if (!isNaN(parsedDate.getTime())) {
+          setStartDate(parsedDate);
+          setCurrentMonth(parsedDate); // Set calendar to show the selected date's month
+        }
+      }
+    } else if (!value && singleDate) {
+      // Clear the selected date if value is empty
+      setStartDate(null);
+    }
+  }, [value, singleDate]);
 
   // Close calendar when clicking outside
   useEffect(() => {
@@ -88,6 +111,13 @@ const DateSelector: React.FC<DateSelectorProps> = ({
     
     if (singleDate) {
       // Single date selection (like DOB)
+      // Prevent selecting future dates for DOB
+      const today = new Date();
+      today.setHours(23, 59, 59, 999); // End of today
+      if (date > today) {
+        return; // Don't allow future dates for DOB
+      }
+      
       setStartDate(date);
       setEndDate(null);
       onDateSelect?.(date, null);
@@ -148,7 +178,8 @@ const DateSelector: React.FC<DateSelectorProps> = ({
   const isDateInRange = (date: Date) => {
     if (!startDate) return false;
     if (!endDate) {
-      return hoveredDate && date >= startDate && date <= hoveredDate;
+      // Only show hover range if we're in range selection mode (not single date)
+      return !singleDate && hoveredDate && date >= startDate && date <= hoveredDate;
     }
     return date >= startDate && date <= endDate;
   };
@@ -160,6 +191,16 @@ const DateSelector: React.FC<DateSelectorProps> = ({
 
   const isDateToday = (date: Date) => {
     return isToday(date);
+  };
+
+  const isDateDisabled = (date: Date) => {
+    if (singleDate) {
+      // For DOB, disable future dates
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+      return date > today;
+    }
+    return false;
   };
 
   const goToPreviousMonth = () => {
@@ -196,8 +237,11 @@ const DateSelector: React.FC<DateSelectorProps> = ({
     const years = [];
     
     if (singleDate) {
-      // For DOB selection, show a wider range (1900 to current year + 2)
-      for (let year = 1900; year <= currentYear + 2; year++) {
+      // For DOB selection, show reasonable birth years (1930 to current year)
+      // This prevents people born in 2024 from applying for loans
+      const minBirthYear = 1930;
+      const maxBirthYear = currentYear;
+      for (let year = maxBirthYear; year >= minBirthYear; year--) {
         years.push({ value: year, label: year.toString() });
       }
     } else {
@@ -330,16 +374,23 @@ const DateSelector: React.FC<DateSelectorProps> = ({
                 <button
                   key={index}
                   type="button"
+                  disabled={isDateDisabled(date)}
                   onClick={(e) => handleDateClick(date, e)}
-                  onMouseEnter={() => setHoveredDate(date)}
-                  onMouseLeave={() => setHoveredDate(null)}
-                  className={`p-2 text-center text-sm rounded-md transition-all duration-150 ease-in-out transform hover:scale-105 ${
-                    isDateSelected(date)
+                  onMouseEnter={() => !isDateDisabled(date) && setHoveredDate(date)}
+                  onMouseLeave={() => !isDateDisabled(date) && setHoveredDate(null)}
+                  className={`p-2 text-center text-sm rounded-md transition-all duration-150 ease-in-out transform ${
+                    singleDate ? '' : 'hover:scale-105'
+                  } ${
+                    isDateDisabled(date)
+                      ? 'text-gray-300 cursor-not-allowed bg-gray-50'
+                      : isDateSelected(date)
                       ? 'bg-green-500 text-white shadow-md scale-105'
                       : isDateInRange(date)
                       ? 'bg-green-100 text-green-700 shadow-sm'
                       : isDateToday(date)
                       ? 'bg-gray-100 text-gray-900 font-medium shadow-sm'
+                      : singleDate
+                      ? 'text-gray-700 hover:bg-gray-50'
                       : 'text-gray-700 hover:bg-gray-100 hover:shadow-sm'
                   } ${
                     !isSameMonth(date, currentMonth)

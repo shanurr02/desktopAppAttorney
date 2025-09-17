@@ -51,7 +51,7 @@ const EmploymentDetailsStep: React.FC<EmploymentDetailsStepProps> = ({
     <form className="flex-1 w-full">
       <div className="flex-1 w-full">
         {/* Employment Information - Responsive columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Employer Name <span className="text-red-500">*</span></label>
             <Input
@@ -96,7 +96,7 @@ const EmploymentDetailsStep: React.FC<EmploymentDetailsStepProps> = ({
         </div>
 
         {/* Income Source and Pay Frequency - Responsive columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Source of Income <span className="text-red-500">*</span></label>
             <select
