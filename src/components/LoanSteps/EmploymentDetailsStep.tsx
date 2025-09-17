@@ -51,7 +51,7 @@ const EmploymentDetailsStep: React.FC<EmploymentDetailsStepProps> = ({
     <form className="flex-1 w-full">
       <div className="flex-1 w-full">
         {/* Employment Information - Responsive columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Employer Name <span className="text-red-500">*</span></label>
             <Input
@@ -96,7 +96,7 @@ const EmploymentDetailsStep: React.FC<EmploymentDetailsStepProps> = ({
         </div>
 
         {/* Income Source and Pay Frequency - Responsive columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Source of Income <span className="text-red-500">*</span></label>
             <select
@@ -135,18 +135,6 @@ const EmploymentDetailsStep: React.FC<EmploymentDetailsStepProps> = ({
             )}
           </div>
         </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
-            <div className="flex items-center">
-              <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-              <span>{error}</span>
-            </div>
-          </div>
-        )}
 
         {/* Navigation Buttons */}
         <div className="pt-[30px] border-gray-200 border-t-[1px] gap-1 flex justify-end">

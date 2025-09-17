@@ -27,12 +27,12 @@ const menuItems = [
   { id: "home", label: "Dashboard", icon: Home, isHamburger: false },
   { id: "finance", label: "Collect Payment", icon: DollarSign, isHamburger: false },
   { id: "layers", label: "Start Application", icon: Layers, isHamburger: false },
-  { id: "all", label: "All Application", icon: File, isHamburger: false },
   { id: "send", label: "Invite Client", icon: Send, isHamburger: false },
   // { id: "timer", label: "Payment Plans", icon: ChartPie, isHamburger: false },
   { id: "compass", label: "Transactions", icon: ArrowLeftRight, isHamburger: false },
   // { id: "refresh", label: "Refund", icon: RotateCcw, isHamburger: false },
   { id: "chart", label: "Reports", icon: BarChart3, isHamburger: false },
+  { id: "all", label: "All Application", icon: File, isHamburger: false },
 ] as const;
 
 const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {

@@ -45,6 +45,15 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
 }) => {
   const { validateAddress, isValidating } = useAddressValidation();
   const [isStateDropdownDisabled, setIsStateDropdownDisabled] = useState(true);
+  const [zipValidationStatus, setZipValidationStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
+
+  // Reset validation status when ZIP code changes
+  React.useEffect(() => {
+    if (formData.zip_code.length !== 5) {
+      setZipValidationStatus('idle');
+      setIsStateDropdownDisabled(true);
+    }
+  }, [formData.zip_code]);
 
   // Handle ZIP code validation button click
   const handleValidateZipCode = useCallback(async () => {
@@ -56,7 +65,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
 
     try {
       const addressData = await validateAddress(zipCode);
-      if (addressData) {
+      if (addressData && addressData.city && addressData.state) {
         // Create synthetic events to update city and state
         const cityEvent = {
           target: { value: addressData.city }
@@ -71,13 +80,44 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
         
         // Keep state dropdown disabled since we got valid data
         setIsStateDropdownDisabled(true);
+        setZipValidationStatus('valid');
+        
+        // Clear any previous validation errors for city and state
+        // Note: You might want to add clearFieldError props to clear validation errors
+      } else {
+        // No valid data returned, enable manual entry
+        setIsStateDropdownDisabled(false);
+        setZipValidationStatus('invalid');
       }
     } catch (error: any) {
       console.error('Address validation error:', error);
       
-      // Check if it's a 500 error - enable dropdown for manual selection
-      if (error?.response?.status === 500) {
+      // Handle different types of errors
+      if (error?.response?.status === 400 || error?.response?.status === 404) {
+        // ZIP code not found or invalid format
+        console.log('Invalid ZIP code - enabling manual entry');
         setIsStateDropdownDisabled(false);
+        setZipValidationStatus('invalid');
+        
+        // Clear city and state fields when ZIP is invalid
+        const clearCityEvent = {
+          target: { value: '' }
+        } as React.ChangeEvent<HTMLInputElement>;
+        
+        const clearStateEvent = {
+          target: { value: '' }
+        } as React.ChangeEvent<HTMLSelectElement>;
+        
+        onCityChange(clearCityEvent);
+        onStateChange(clearStateEvent);
+      } else if (error?.response?.status === 500) {
+        // Server error - enable dropdown for manual selection
+        setIsStateDropdownDisabled(false);
+        setZipValidationStatus('invalid');
+      } else {
+        // Other errors - enable manual entry as fallback
+        setIsStateDropdownDisabled(false);
+        setZipValidationStatus('invalid');
       }
     }
   }, [formData.zip_code, validateAddress, onCityChange, onStateChange]);
@@ -142,7 +182,8 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
 
   const isFormValid = formData.firstname && formData.last_name && formData.email &&
     formData.dob && formData.ssn && formData.phone_number &&
-    formData.street_address && formData.city && formData.state && formData.zip_code;
+    formData.street_address && formData.city && formData.state && formData.zip_code &&
+    formData.months_at_address && formData.monthly_rent;
 
   return (
     <form className="flex-1 w-full">
@@ -216,6 +257,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
               label="Select date of birth"
               onDateSelect={onDobDateSelect}
               singleDate={true}
+              value={formData.dob}
               className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${validationErrors.dob ? 'border-red-300 focus:border-red-500' : 'border-gray-300'}`}
             />
             {validationErrors.dob && (
@@ -271,11 +313,33 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
                   onChange={onZipCodeChange}
                   placeholder="ZIP"
                   maxLength={5}
-                  className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${validationErrors.zip_code ? 'border-red-300 focus:border-red-500' : 'border-gray-300'}`}
+                  className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
+                    validationErrors.zip_code 
+                      ? 'border-red-300 focus:border-red-500' 
+                      : zipValidationStatus === 'valid'
+                      ? 'border-green-300 focus:border-green-500'
+                      : zipValidationStatus === 'invalid'
+                      ? 'border-orange-300 focus:border-orange-500'
+                      : 'border-gray-300'
+                  }`}
                 />
                 {isValidating && (
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                  </div>
+                )}
+                {zipValidationStatus === 'valid' && !isValidating && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
+                {zipValidationStatus === 'invalid' && !isValidating && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <svg className="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
                   </div>
                 )}
               </div>
@@ -292,6 +356,16 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
             {validationErrors.zip_code && (
               <p className="text-red-500 text-xs">{validationErrors.zip_code}</p>
             )}
+            {zipValidationStatus === 'invalid' && !validationErrors.zip_code && (
+              <p className="text-orange-500 text-xs">
+                ZIP code not found. Please enter city and state manually.
+              </p>
+            )}
+            {zipValidationStatus === 'valid' && !validationErrors.zip_code && (
+              <p className="text-green-600 text-xs">
+                ✓ ZIP code validated. City and state auto-filled.
+              </p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -305,7 +379,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
               value={formData.city}
               onChange={onCityChange}
               placeholder="City"
-              disabled={isStateDropdownDisabled}
+              // disabled={isStateDropdownDisabled}
               className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
                 isStateDropdownDisabled 
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
@@ -332,7 +406,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
              <select
                value={formData.state}
                onChange={onStateChange}
-               disabled={isStateDropdownDisabled}
+              //  dis abled={isStateDropdownDisabled}
                className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
                  isStateDropdownDisabled 
                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
