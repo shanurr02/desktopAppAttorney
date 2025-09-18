@@ -22,7 +22,9 @@ export const loanSchema = z.object({
   months_at_address: z.string().min(1, 'Months at address is required').regex(/^\d+$/, 'Must be a number'),
   monthly_rent: z.string().min(1, 'Monthly rent is required').regex(/^\d+$/, 'Monthly rent must be a number'),
   zip_code: z.string().min(1, 'Zip code is required').regex(/^\d{5}(-\d{4})?$/, 'Invalid zip code format'),
-  phone_number: z.string().min(1, 'Phone number is required').regex(/^\(\d{3}\) \d{3}-\d{4}$/, 'Phone must be in (XXX) XXX-XXXX format'),
+  phone_number: z.string()
+    .min(1, 'Phone number is required')
+    .regex(/^\(\d{3}\) \d{3}-\d{4}$/, 'Phone must be in (XXX) XXX-XXXX format'),
   income_source: z.string().min(1, 'Income source is required'),
   pay_frequency: z.string().min(1, 'Pay frequency is required'),
   monthly_income: z.string().min(1, 'Monthly income is required').regex(/^\d+$/, 'Monthly income must be a number'),

@@ -4,7 +4,7 @@ import { ArrowUp, ArrowDown } from "lucide-react";
 interface DashboardCardProps {
   title: string;
   amount: string;
-  percentage: string;
+  percentage?: string; // Now optional
   isPositive?: boolean; // fallback logic
   bgColor?: string;     // Tailwind background (e.g. "bg-green-50")
   textColor?: string;   // Tailwind text color (e.g. "text-green-600")
@@ -33,12 +33,14 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
       <div className="flex items-center gap-2 mt-2">
         <h2 className="text-2xl font-bold">{amount}</h2>
 
-        <span
-          className={`flex items-center gap-1 px-2 py-0.5 text-sm font-medium rounded-full ${bgColor || defaultBg} ${textColor || defaultText}`}
-        >
-          <Icon size={14} strokeWidth={3} className={textColor || defaultText} />
-          {percentage}
-        </span>
+        {percentage !== undefined && percentage !== null && percentage !== "" && (
+          <span
+            className={`flex items-center gap-1 px-2 py-0.5 text-sm font-medium rounded-full ${bgColor || defaultBg} ${textColor || defaultText}`}
+          >
+            <Icon size={14} strokeWidth={3} className={textColor || defaultText} />
+            {percentage}
+          </span>
+        )}
       </div>
     </div>
   );
