@@ -8,19 +8,22 @@ import { phoneAPI, PhoneValidationResponse } from '../api/phone';
 export const usePhoneValidation = () => {
   const [isValidating, setIsValidating] = useState(false);
   const [validationStatus, setValidationStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
+  const [lastValidatedPhone, setLastValidatedPhone] = useState<string>('');
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Phone validation mutation
   const validateMutation = useMutation({
     mutationFn: phoneAPI.validatePhone,
-    onSuccess: (data) => {
+    onSuccess: (data, phone) => {
       console.log('Phone validated successfully:', data);
       setValidationStatus(data.valid ? 'valid' : 'invalid');
+      setLastValidatedPhone(phone);
       setIsValidating(false);
     },
-    onError: (error) => {
+    onError: (error, phone) => {
       console.error('Phone validation failed:', error);
       setValidationStatus('invalid');
+      setLastValidatedPhone(phone);
       setIsValidating(false);
     },
   });
@@ -85,10 +88,17 @@ export const usePhoneValidation = () => {
     });
   }, [validateMutation]);
 
+  // Check if phone number has already been validated
+  const isPhoneAlreadyValidated = useCallback((phone: string): boolean => {
+    const cleanPhone = phone.replace(/\D/g, '');
+    return lastValidatedPhone === cleanPhone && validationStatus === 'valid';
+  }, [lastValidatedPhone, validationStatus]);
+
   // Clear validation status when phone changes
   const resetValidation = useCallback(() => {
     setValidationStatus('idle');
     setIsValidating(false);
+    setLastValidatedPhone('');
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
@@ -113,5 +123,6 @@ export const usePhoneValidation = () => {
     validatePhone,
     validatePhoneImmediate,
     resetValidation,
+    isPhoneAlreadyValidated,
   };
 };

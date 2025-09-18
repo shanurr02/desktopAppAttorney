@@ -10,11 +10,13 @@ import {
   Send,
   Settings,
   User,
-  File
+  File,
+  SquareMenu
 } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { Tooltip } from "react-tooltip";
 
 type SidePanelProps = {
   onSelect: (page: string) => void;
@@ -23,7 +25,7 @@ type SidePanelProps = {
 
 // Memoized menu items to prevent unnecessary re-renders
 const menuItems = [
-  { id: "menu", label: "", icon: Menu, isHamburger: true },
+  { id: "menu", label: "Toggle Menu", icon: Menu, isHamburger: true },
   { id: "home", label: "Dashboard", icon: Home, isHamburger: false },
   { id: "finance", label: "Collect Payment", icon: DollarSign, isHamburger: false },
   { id: "layers", label: "Start Application", icon: Layers, isHamburger: false },
@@ -32,7 +34,7 @@ const menuItems = [
   { id: "compass", label: "Transactions", icon: ArrowLeftRight, isHamburger: false },
   // { id: "refresh", label: "Refund", icon: RotateCcw, isHamburger: false },
   { id: "chart", label: "Reports", icon: BarChart3, isHamburger: false },
-  { id: "all", label: "All Application", icon: File, isHamburger: false },
+  { id: "all", label: "All Applications", icon: SquareMenu  , isHamburger: false },
 ] as const;
 
 const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
@@ -125,7 +127,9 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
                 <button
                   key={item.id}
                   onClick={handleToggleExpanded}
-                  className={`w-full flex items-center ${expanded ? "justify-start gap-2" : "justify-center"}  py-2 px-4 rounded-md text-sm font-medium transition-all duration-150 ease-out group relative text-gray-300 hover:bg-[#161717]/50 hover:text-white`}
+                  data-tooltip-id={`tooltip-${item.id}`}
+                  data-tooltip-content={!expanded ? item.label : ""}
+                  className={`w-full flex items-center ${expanded ? "justify-start gap-2" : "justify-center"}  py-2 px-4 rounded-md text-sm font-medium transition-all duration-150 ease-out text-gray-300 hover:bg-[#161717]/50 hover:text-white`}
                 >
                   <Icon size={20} className="flex-shrink-0 text-center" />
                   <div
@@ -134,13 +138,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
                   >
                     <span className="text-sm whitespace-nowrap select-none">{item.label}</span>
                   </div>
-
-                  {/* Tooltip for collapsed state */}
-                  {!expanded && (
-                    <div className="absolute left-16 bg-[#161717]/95 backdrop-blur-sm text-white px-2 py-1 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 ease-out pointer-events-none z-10 select-none">
-                      {item.label}
-                    </div>
-                  )}
                 </button>
               );
             }
@@ -149,7 +146,9 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
               <button
                 key={item.id}
                 onClick={() => handleMenuSelect(item.id)}
-                className={`w-full flex items-center ${expanded ? "justify-start gap-2" : "justify-center"}  py-2 px-4 rounded-md text-sm font-medium transition-all duration-150 ease-out group relative 
+                data-tooltip-id={`tooltip-${item.id}`}
+                data-tooltip-content={!expanded ? item.label : ""}
+                className={`w-full flex items-center ${expanded ? "justify-start gap-2" : "justify-center"}  py-2 px-4 rounded-md text-sm font-medium transition-all duration-150 ease-out
                 ${isActive
                     ? "bg-green-600/90 text-white shadow-md"
                     : "text-gray-300 hover:bg-[#161717]/50 hover:text-white"
@@ -162,13 +161,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
                 >
                   <span className="text-sm whitespace-nowrap select-none">{item.label}</span>
                 </div>
-
-                {/* Optimized tooltip for collapsed state */}
-                {!expanded && (
-                  <div className="absolute left-16 bg-[#161717]/95 backdrop-blur-sm text-white px-2 py-1 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 ease-out pointer-events-none z-10 select-none">
-                    {item.label}
-                  </div>
-                )}
               </button>
             );
           })}
@@ -180,13 +172,14 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
           <div className={`flex items-center w-full ${expanded ? "h-12 px-4" : "h-12 justify-center "} relative`}>
             <button
               onClick={handleProfileClick}
+              data-tooltip-id="tooltip-profile"
+              data-tooltip-content={!expanded ? (currentUser?.name || currentUser?.first_name || 'Profile') : ""}
               className={`flex items-center transition-all duration-150 ease-out rounded-md
                 ${expanded
                   ? "py-2 w-full px-4 hover:bg-[#161717]/50"
                   : "h-8 w-8 justify-center bg-orange-500 hover:bg-orange-600"
                 }`
               }
-              title={expanded ? undefined : (currentUser?.name || currentUser?.first_name || 'Profile')}
             >
               <div className="relative">
                 <div className="rounded-md flex items-center justify-center h-8 w-8 bg-orange-500">
@@ -280,6 +273,44 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
           )}
         </div>
       </div>
+
+      {/* Tooltip components */}
+      {menuItems.map((item) => (
+        <Tooltip
+          key={`tooltip-${item.id}`}
+          id={`tooltip-${item.id}`}
+          place="right"
+          style={{
+            backgroundColor: '#161717',
+            color: 'white',
+            borderRadius: '6px',
+            padding: '8px 12px',
+            fontSize: '14px',
+            fontWeight: '500',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            border: '1px solid rgba(75, 85, 99, 0.3)',
+            zIndex: 9999
+          }}
+          opacity={0.95}
+        />
+      ))}
+      
+      <Tooltip
+        id="tooltip-profile"
+        place="right"
+        style={{
+          backgroundColor: '#161717',
+          color: 'white',
+          borderRadius: '6px',
+          padding: '8px 12px',
+          fontSize: '14px',
+          fontWeight: '500',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+          border: '1px solid rgba(75, 85, 99, 0.3)',
+          zIndex: 9999
+        }}
+        opacity={0.95}
+      />
     </div>
   );
 };

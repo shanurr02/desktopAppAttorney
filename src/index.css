@@ -7,9 +7,9 @@
   outline: none !important;
 }
 
-::-webkit-scrollbar{
+/* ::-webkit-scrollbar{
   display: none;
-}
+} */
 
 *:focus {
   outline: none !important;

@@ -3,6 +3,7 @@ import SidePanel from "../components/SidePanel";
 import Dashboard from "./Dashboard";
 import LoanApplication from "./LoanApplication";
 import Loans from "./Loans";
+import ComingSoon from "./ComingSoon";
 import CustomTitleBar from "../components/CustomTitleBar";
 
 const LayoutDashboard: React.FC = () => {
@@ -16,8 +17,13 @@ const LayoutDashboard: React.FC = () => {
         return <LoanApplication />;
       case "all":
         return <Loans />;
+      case "finance":
+      case "send":
+      case "compass":
+      case "chart":
+        return <ComingSoon />;
       default:
-        return <div>coming soon</div>;
+        return <ComingSoon />;
     }
   };
 

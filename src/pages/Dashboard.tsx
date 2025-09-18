@@ -72,7 +72,7 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="px-2 min-h-full py-2">
+    <div className="px-2 h-full py-2">
       {/* 🔹 Top Navbar */}
       <NavbarDashboard />
 

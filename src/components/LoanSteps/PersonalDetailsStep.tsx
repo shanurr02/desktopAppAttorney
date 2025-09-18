@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
+import { z } from 'zod';
 import { Input, Button } from '../index';
-import { LoanFormData, LoanValidationErrors } from '../../validation';
+import { LoanFormData, LoanValidationErrors, loanSchema } from '../../validation';
 import DateSelector from '../Dashboard/DateSelector';
 import { useAddressValidation, usePhoneValidation } from '../../hooks';
 
@@ -22,6 +23,7 @@ interface PersonalDetailsStepProps {
   onPhoneNumberChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onPrevious: () => void;
   onNext: () => void;
+  clearFieldError?: (field: keyof LoanValidationErrors) => void;
 }
 
 const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
@@ -41,12 +43,14 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
   onZipCodeChange,
   onPhoneNumberChange,
   onPrevious,
-  onNext
+  onNext, 
+  clearFieldError
 }) => {
   const { validateAddress, isValidating } = useAddressValidation();
-  const { validatePhoneImmediate, isValidating: isPhoneValidating, validationStatus: phoneValidationStatus, resetValidation: resetPhoneValidation } = usePhoneValidation();
+  const { validatePhoneImmediate, isValidating: isPhoneValidating, validationStatus: phoneValidationStatus, resetValidation: resetPhoneValidation, isPhoneAlreadyValidated } = usePhoneValidation();
   const [isStateDropdownDisabled, setIsStateDropdownDisabled] = useState(true);
   const [zipValidationStatus, setZipValidationStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
+  const [emailError, setEmailError] = useState<string>('');
 
   // Reset validation status when ZIP code changes
   React.useEffect(() => {
@@ -56,10 +60,50 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
     }
   }, [formData.zip_code]);
 
-  // Reset phone validation when phone number changes
+  // Track previous phone number to detect actual changes
+  const [previousPhone, setPreviousPhone] = useState(formData.phone_number);
+  
+  // Reset phone validation only when phone number actually changes and hasn't been validated
   React.useEffect(() => {
-    resetPhoneValidation();
-  }, [formData.phone_number, resetPhoneValidation]); 
+    if (formData.phone_number !== previousPhone) {
+      setPreviousPhone(formData.phone_number);
+      // Only reset validation if the phone number actually changed and hasn't been validated before
+      if (formData.phone_number.length > 0 && !isPhoneAlreadyValidated(formData.phone_number)) {
+        resetPhoneValidation();
+      }
+    }
+  }, [formData.phone_number, previousPhone, resetPhoneValidation, isPhoneAlreadyValidated]);
+
+  // Email validation function
+  const validateEmail = useCallback((email: string) => {
+    try {
+      // Create a simple email validation schema
+      const emailSchema = z.string().min(1, 'Email is required').email('Please enter a valid email address');
+      emailSchema.parse(email);
+      setEmailError('');
+      if (clearFieldError) {
+        clearFieldError('email');
+      }
+    } catch (error: any) {
+      if (error.errors && error.errors[0]) {
+        setEmailError(error.errors[0].message);
+      }
+    }
+  }, [clearFieldError]);
+
+  // Handle email change with validation
+  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onEmailChange(e);
+    const email = e.target.value;
+    if (email.trim()) {
+      validateEmail(email);
+    } else {
+      setEmailError('');
+      if (clearFieldError) {
+        clearFieldError('email');
+      }
+    }
+  }, [onEmailChange, validateEmail, clearFieldError]); 
 
   // Handle ZIP code validation button click
   const handleValidateZipCode = useCallback(async () => {
@@ -190,7 +234,8 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
     formData.dob && formData.ssn && formData.phone_number &&
     formData.street_address && formData.city && formData.state && formData.zip_code &&
     formData.months_at_address && formData.monthly_rent &&
-    phoneValidationStatus === 'valid'; // Require phone validation to be completed successfully
+    (phoneValidationStatus === 'valid' || isPhoneAlreadyValidated(formData.phone_number)) && // Require phone validation to be completed successfully
+    !emailError; // Require email to be valid
 
   return (
     <form className="flex-1 w-full">
@@ -230,13 +275,13 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
             <Input
               type="email"
               value={formData.email}
-              onChange={onEmailChange}
+              onChange={handleEmailChange}
               placeholder="Email"
               autoComplete="email"
-              className={validationErrors.email ? 'border-red-300 focus:border-red-500' : ''}
+              className={(validationErrors.email || emailError) ? 'border-red-300 focus:border-red-500' : ''}
             />
-            {validationErrors.email && (
-              <p className="text-red-500 text-xs">{validationErrors.email}</p>
+            {(validationErrors.email || emailError) && (
+              <p className="text-red-500 text-xs">{validationErrors.email || emailError}</p>
             )}
           </div>
 
@@ -244,16 +289,16 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
             <label className="block text-sm font-medium text-gray-700 mb-1">Phone <span className="text-red-500">*</span></label>
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <input
-                  type="text"
-                  value={formData.phone_number}
-                  onChange={onPhoneNumberChange}
-                  placeholder="(XXX) XXX-XXXX"
-                  maxLength={14}
+            <input
+              type="text"
+              value={formData.phone_number}
+              onChange={onPhoneNumberChange}
+              placeholder="(XXX) XXX-XXXX"
+              maxLength={14}
                   className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
                     validationErrors.phone_number 
                       ? 'border-red-300 focus:border-red-500' 
-                      : phoneValidationStatus === 'valid'
+                      : phoneValidationStatus === 'valid' || isPhoneAlreadyValidated(formData.phone_number)
                       ? 'border-green-300 focus:border-green-500'
                       : phoneValidationStatus === 'invalid'
                       ? 'border-orange-300 focus:border-orange-500'
@@ -265,7 +310,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
                   </div>
                 )}
-                {phoneValidationStatus === 'valid' && !isPhoneValidating && (
+                {(phoneValidationStatus === 'valid' || isPhoneAlreadyValidated(formData.phone_number)) && !isPhoneValidating && (
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                     <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -292,7 +337,8 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
                 disabled={!formData.phone_number || formData.phone_number.replace(/\D/g, '').length !== 10 || isPhoneValidating}
                 className="px-4 py-2 text-sm whitespace-nowrap"
               >
-                {isPhoneValidating ? 'Checking...' : 'Check'}
+                {isPhoneValidating ? 'Checking...' : 
+                 isPhoneAlreadyValidated(formData.phone_number) ? 'Validated' : 'Check'}
               </Button>
             </div>
             {validationErrors.phone_number && (
@@ -303,7 +349,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
                 Phone number is not valid. Please check and try again.
               </p>
             )}
-            {phoneValidationStatus === 'valid' && !validationErrors.phone_number && (
+            {(phoneValidationStatus === 'valid' || isPhoneAlreadyValidated(formData.phone_number)) && !validationErrors.phone_number && (
               <p className="text-green-600 text-xs">
                 ✓ Phone number validated successfully.
               </p>
@@ -412,7 +458,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
                 disabled={!formData.zip_code || formData.zip_code.length !== 5 || isValidating}
                 className="px-4 py-2 text-sm whitespace-nowrap"
               >
-                {isValidating ? 'Checking...' : 'Check ZIP'}
+                {isValidating ? 'Checking...' : 'Check'}
               </Button>
             </div>
             {validationErrors.zip_code && (
