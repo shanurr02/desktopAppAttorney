@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import SidePanel from "../components/SidePanel";
 import Dashboard from "./Dashboard";
 import LoanApplication from "./LoanApplication";
+import Loans from "./Loans";
 import CustomTitleBar from "../components/CustomTitleBar";
 
 const LayoutDashboard: React.FC = () => {
@@ -13,6 +14,8 @@ const LayoutDashboard: React.FC = () => {
         return <Dashboard />;
       case "layers":
         return <LoanApplication />;
+      case "all":
+        return <Loans />;
       default:
         return <div>coming soon</div>;
     }

@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Input, Button } from '../index';
 import { LoanFormData, LoanValidationErrors } from '../../validation';
 import DateSelector from '../Dashboard/DateSelector';
-import { useAddressValidation } from '../../hooks';
+import { useAddressValidation, usePhoneValidation } from '../../hooks';
 
 interface PersonalDetailsStepProps {
   formData: LoanFormData;
@@ -44,6 +44,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
   onNext
 }) => {
   const { validateAddress, isValidating } = useAddressValidation();
+  const { validatePhoneImmediate, isValidating: isPhoneValidating, validationStatus: phoneValidationStatus, resetValidation: resetPhoneValidation } = usePhoneValidation();
   const [isStateDropdownDisabled, setIsStateDropdownDisabled] = useState(true);
   const [zipValidationStatus, setZipValidationStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
 
@@ -54,6 +55,11 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
       setIsStateDropdownDisabled(true);
     }
   }, [formData.zip_code]);
+
+  // Reset phone validation when phone number changes
+  React.useEffect(() => {
+    resetPhoneValidation();
+  }, [formData.phone_number, resetPhoneValidation]); 
 
   // Handle ZIP code validation button click
   const handleValidateZipCode = useCallback(async () => {
@@ -183,7 +189,8 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
   const isFormValid = formData.firstname && formData.last_name && formData.email &&
     formData.dob && formData.ssn && formData.phone_number &&
     formData.street_address && formData.city && formData.state && formData.zip_code &&
-    formData.months_at_address && formData.monthly_rent;
+    formData.months_at_address && formData.monthly_rent &&
+    phoneValidationStatus === 'valid'; // Require phone validation to be completed successfully
 
   return (
     <form className="flex-1 w-full">
@@ -235,16 +242,71 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Phone <span className="text-red-500">*</span></label>
-            <input
-              type="text"
-              value={formData.phone_number}
-              onChange={onPhoneNumberChange}
-              placeholder="(XXX) XXX-XXXX"
-              maxLength={14}
-              className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none  transition-all duration-200 focus:ring-2 focus:ring-green-50 focus:border-green-500  ${validationErrors.phone_number ? 'border-red-300 focus:border-red-500' : 'border-gray-300'}`}
-            />
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={formData.phone_number}
+                  onChange={onPhoneNumberChange}
+                  placeholder="(XXX) XXX-XXXX"
+                  maxLength={14}
+                  className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
+                    validationErrors.phone_number 
+                      ? 'border-red-300 focus:border-red-500' 
+                      : phoneValidationStatus === 'valid'
+                      ? 'border-green-300 focus:border-green-500'
+                      : phoneValidationStatus === 'invalid'
+                      ? 'border-orange-300 focus:border-orange-500'
+                      : 'border-gray-300'
+                  }`}
+                />
+                {isPhoneValidating && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                  </div>
+                )}
+                {phoneValidationStatus === 'valid' && !isPhoneValidating && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
+                {phoneValidationStatus === 'invalid' && !isPhoneValidating && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <svg className="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={async () => {
+                  const cleanPhone = formData.phone_number.replace(/\D/g, '');
+                  if (cleanPhone.length === 10) {
+                    await validatePhoneImmediate(formData.phone_number);
+                  }
+                }}
+                disabled={!formData.phone_number || formData.phone_number.replace(/\D/g, '').length !== 10 || isPhoneValidating}
+                className="px-4 py-2 text-sm whitespace-nowrap"
+              >
+                {isPhoneValidating ? 'Checking...' : 'Check'}
+              </Button>
+            </div>
             {validationErrors.phone_number && (
               <p className="text-red-500 text-xs">{validationErrors.phone_number}</p>
+            )}
+            {phoneValidationStatus === 'invalid' && !validationErrors.phone_number && (
+              <p className="text-orange-500 text-xs">
+                Phone number is not valid. Please check and try again.
+              </p>
+            )}
+            {phoneValidationStatus === 'valid' && !validationErrors.phone_number && (
+              <p className="text-green-600 text-xs">
+                ✓ Phone number validated successfully.
+              </p>
             )}
           </div>
         </div>

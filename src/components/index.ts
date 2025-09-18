@@ -4,6 +4,10 @@ export { default as Select } from './Select';
 export { default as FormSection } from './FormSection';
 export { default as ProtectedRoute } from './ProtectedRoute';
 
+// Loan Components
+export { default as LoanCard } from './Loan/LoanCard';
+export { default as LoanList } from './Loan/LoanList';
+
 // Loan Steps Components
 export { default as LoanRequestStep } from './LoanSteps/LoanRequestStep';
 export { default as PersonalDetailsStep } from './LoanSteps/PersonalDetailsStep';
