@@ -362,7 +362,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
             )}
             {phoneValidationStatus === 'invalid' && !validationErrors.phone_number && (
               <p className="text-orange-500 text-xs">
-                Phone number is not valid. Please check and try again.
+                Invalid phone number.
               </p>
             )}
             {(phoneValidationStatus === 'valid' || isPhoneAlreadyValidated(formData.phone_number)) && !validationErrors.phone_number && (
@@ -482,7 +482,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
             )}
             {zipValidationStatus === 'invalid' && !validationErrors.zip_code && (
               <p className="text-orange-500 text-xs">
-                ZIP code not found. Please enter city and state manually.
+                Invalid ZIP. Correct it or enter city & state.
               </p>
             )}
             {zipValidationStatus === 'valid' && !validationErrors.zip_code && (
