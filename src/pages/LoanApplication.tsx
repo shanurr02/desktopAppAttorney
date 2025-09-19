@@ -539,6 +539,7 @@ const LoanApplication: React.FC = () => {
                         onPhoneNumberChange={handlePhoneNumberChange}
                         onPrevious={goToPreviousStep}
                         onNext={goToNextStep}
+                        clearFieldError={clearFieldError}
                     />
                 );
             case 2:
@@ -575,7 +576,7 @@ const LoanApplication: React.FC = () => {
 
 
     return (
-        <div className="px-2 min-h-full py-2">
+        <div className="px-2 h-full py-2">
             <NavbarDashboard />
             <div className="flex flex-col bg-gray-100 space-y-3">
                 <div className="overflow-y-auto mt-2">
