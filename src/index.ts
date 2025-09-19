@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu } from "electron";
+import { app, BrowserWindow, Menu, ipcMain, shell } from "electron";
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -68,6 +68,16 @@ const createWindow = (): void => {
 app.on("ready", () => {
   Menu.setApplicationMenu(null);
   createWindow();
+  
+  // IPC handler for opening external URLs
+  ipcMain.handle('open-external', async (event, url: string) => {
+    try {
+      await shell.openExternal(url);
+    } catch (error) {
+      console.error('Failed to open external URL:', error);
+      throw error;
+    }
+  });
 });
 
 app.on("window-all-closed", () => {

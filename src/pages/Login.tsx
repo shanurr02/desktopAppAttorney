@@ -79,8 +79,20 @@ const Login: React.FC = () => {
     console.log("Google login clicked")
   }
 
-  const handleForgotPassword = () => {
-    navigate("https://casefunders.inverosoft.com/forgot_password/")
+  const handleForgotPassword = async () => {
+    try {
+      // Use Electron API to open external URL in default browser
+      if ((window as any).electronAPI) {
+        await (window as any).electronAPI.openExternal("https://casefunders.inverosoft.com/forgot_password/");
+      } else {
+        // Fallback for web version
+        window.open("https://casefunders.inverosoft.com/forgot_password/", "_blank");
+      }
+    } catch (error) {
+      console.error("Failed to open forgot password URL:", error);
+      // Fallback to window.open
+      window.open("https://casefunders.inverosoft.com/forgot_password/", "_blank");
+    }
   }
 
 
