@@ -28,7 +28,7 @@ const LayoutDashboard: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen h-screen bg-gray-100">
+    <div className="flex flex-col min-h-screen h-screen bg-gray-100 ">
       {/* Top title bar - fixed height */}
       <div className="flex-shrink-0">
         <CustomTitleBar title="Case Funders" />
@@ -41,9 +41,9 @@ const LayoutDashboard: React.FC = () => {
           <SidePanel activePage={activePage} onSelect={setActivePage} />
         </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto bg-[#1d1f1f] relative z-0">
+      <div className="flex-1 min-h-0 overflow-y-auto bg-[#1d1f1f] relative z-0 ">
           {/* Main content area */}
-          <main className="bg-gray-100 px-2 rounded-md relative z-0 h-full overflow-y-auto">
+          <main className="bg-gray-100 px-2 rounded-md relative z-0 h-full overflow-y-auto ">
             {renderPage()}
           </main>
       </div>

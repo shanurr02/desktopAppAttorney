@@ -1,6 +1,14 @@
+import {
+  ArrowLeftRight,
+  BarChart3,
+  Clock,
+  DollarSign,
+  Send,
+  Zap,
+} from "lucide-react";
 import React from "react";
-import { Clock, ArrowRight, Zap, Users, DollarSign, BarChart3 } from "lucide-react";
 
+// Use the same icons as in SidePanel.tsx for feature cards
 const ComingSoon: React.FC = () => {
   const features = [
     {
@@ -9,7 +17,7 @@ const ComingSoon: React.FC = () => {
       description: "Streamlined payment collection system for attorneys and clients"
     },
     {
-      icon: Users,
+      icon: Send,
       title: "Invite Client",
       description: "Easy client invitation and onboarding process"
     },
@@ -19,7 +27,7 @@ const ComingSoon: React.FC = () => {
       description: "Comprehensive reporting and analytics dashboard"
     },
     {
-      icon: ArrowRight,
+      icon: ArrowLeftRight,
       title: "Transactions",
       description: "Complete transaction history and management"
     }
@@ -77,73 +85,6 @@ const ComingSoon: React.FC = () => {
               </div>
             );
           })}
-        </div>
-      </div>
-
-      {/* Progress Section */}
-      <div className="max-w-4xl mx-auto mt-16">
-        <div className="bg-white rounded-lg border border-gray-200 p-8 shadow-sm">
-          <h3 className="text-xl font-semibold text-gray-900 mb-6 text-center">
-            Development Progress
-          </h3>
-          
-          <div className="space-y-6">
-            {/* Progress Item */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
-                <span className="text-gray-700">Dashboard & Analytics</span>
-              </div>
-              <span className="text-sm text-green-600 font-medium">Complete</span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
-                <span className="text-gray-700">Loan Application System</span>
-              </div>
-              <span className="text-sm text-green-600 font-medium">Complete</span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
-                <span className="text-gray-700">Payment Collection</span>
-              </div>
-              <span className="text-sm text-yellow-600 font-medium">In Progress</span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-gray-300 rounded-full mr-3"></div>
-                <span className="text-gray-700">Client Invitation System</span>
-              </div>
-              <span className="text-sm text-gray-500 font-medium">Planned</span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-gray-300 rounded-full mr-3"></div>
-                <span className="text-gray-700">Advanced Reporting</span>
-              </div>
-              <span className="text-sm text-gray-500 font-medium">Planned</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Call to Action */}
-      <div className="text-center mt-16">
-        <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-8 max-w-2xl mx-auto">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">
-            Stay Updated
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Get notified when new features are released and stay ahead of the curve.
-          </p>
-          <button className="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors duration-200">
-            Notify Me
-          </button>
         </div>
       </div>
     </div>
