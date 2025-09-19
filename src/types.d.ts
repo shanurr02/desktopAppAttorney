@@ -32,3 +32,12 @@ declare module '*.webp' {
   const src: string;
   export default src;
 }
+
+// Electron API types
+declare global {
+  interface Window {
+    electronAPI?: {
+      openExternal: (url: string) => Promise<void>;
+    };
+  }
+}
