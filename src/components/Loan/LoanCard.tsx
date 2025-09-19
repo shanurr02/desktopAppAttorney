@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import { LoaderCircle } from 'lucide-react';
+import React from 'react';
+import { useApplicationDetails } from '../../hooks/useApplicationDetails';
 import { Button } from '../index';
-import { LoanFormData } from '../../validation';
+
 
 // Extended loan data type for display
 interface LoanData {
   id: string;
+  application_id: string;
   loan_amount: string;
   residence_type: string;
   next_page?: string;
@@ -39,6 +42,15 @@ interface LoanCardProps {
 }
 
 const LoanCard: React.FC<LoanCardProps> = ({ loan, isExpanded, onToggleExpanded }) => {
+  // Fetch detailed application data when expanded
+  const { 
+    formattedApplicationDetails, 
+    isLoading: isLoadingDetails,
+    getIncomeSourceLabel,
+    getPayFrequencyLabel,
+    getResidenceTypeLabel 
+  } = useApplicationDetails(isExpanded ? loan.application_id : null);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'approved': return 'bg-green-100 text-green-700';
@@ -111,48 +123,99 @@ const LoanCard: React.FC<LoanCardProps> = ({ loan, isExpanded, onToggleExpanded 
       {/* Expanded Details */}
       {isExpanded && (
         <div className="border-t border-gray-200 p-6 bg-gray-50">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-            {/* Personal Information */}
-            <div className="space-y-1">
-              <div className="font-semibold text-green-600 border-b border-green-100 pb-1 mb-2">Personal</div>
-              <div><span className="text-gray-500">Name:</span> <span className="font-medium">{loan.firstname} {loan.last_name}</span></div>
-              <div><span className="text-gray-500">Email:</span> <span>{loan.email}</span></div>
-              <div><span className="text-gray-500">Phone:</span> <span>{loan.phone_number}</span></div>
-              <div><span className="text-gray-500">DOB:</span> <span>{loan.dob}</span></div>
-              <div><span className="text-gray-500">SSN:</span> <span>{loan.ssn}</span></div>
-            </div>
+          {isLoadingDetails ? (
+            <div className="flex-1 flex items-center justify-center">
+             <div className="text-center">
+               {/* <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div> */}
+               <LoaderCircle  className="animate-spin h-12 w-12 text-green-600 mx-auto mb-4" />            
+               <p className="text-gray-600 text-lg">Loading applications...</p>
+               <p className="text-gray-400 text-sm mt-2">Please wait while we fetch your data</p>
+             </div>
+           </div>
+          ) : formattedApplicationDetails ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+              {/* Personal Information */}
+              <div className="space-y-1">
+                <div className="font-semibold text-green-600 border-b border-green-100 pb-1 mb-2">Personal</div>
+                <div><span className="text-gray-500">Name:</span> <span className="font-medium">{formattedApplicationDetails.first_name} {formattedApplicationDetails.last_name}</span></div>
+                <div><span className="text-gray-500">Email:</span> <span>{formattedApplicationDetails.email}</span></div>
+                <div><span className="text-gray-500">Phone:</span> <span>{formattedApplicationDetails.phone_number}</span></div>
+                <div><span className="text-gray-500">DOB:</span> <span>{formattedApplicationDetails.dob}</span></div>
+                <div><span className="text-gray-500">SSN:</span> <span>{formattedApplicationDetails.ssn}</span></div>
+              </div>
 
-            {/* Address Information */}
-            <div className="space-y-1">
-              <div className="font-semibold text-green-600 border-b border-green-100 pb-1 mb-2">Address</div>
-              <div><span className="text-gray-500">Street:</span> <span>{loan.street_address}</span></div>
-              <div><span className="text-gray-500">City:</span> <span>{loan.city}</span></div>
-              <div><span className="text-gray-500">State:</span> <span>{loan.state}</span></div>
-              <div><span className="text-gray-500">ZIP:</span> <span>{loan.zip_code}</span></div>
-              <div><span className="text-gray-500">At Addr:</span> <span>{loan.months_at_address} mo</span></div>
-              <div><span className="text-gray-500">Rent:</span> <span>${loan.monthly_rent}</span></div>
-            </div>
+              {/* Address Information */}
+              <div className="space-y-1">
+                <div className="font-semibold text-green-600 border-b border-green-100 pb-1 mb-2">Address</div>
+                <div><span className="text-gray-500">Street:</span> <span>{formattedApplicationDetails.street_address}</span></div>
+                <div><span className="text-gray-500">City:</span> <span>{formattedApplicationDetails.city}</span></div>
+                <div><span className="text-gray-500">State:</span> <span>{formattedApplicationDetails.state}</span></div>
+                <div><span className="text-gray-500">ZIP:</span> <span>{formattedApplicationDetails.zip_code}</span></div>
+                <div><span className="text-gray-500">At Addr:</span> <span>{formattedApplicationDetails.months_at_address} mo</span></div>
+                <div><span className="text-gray-500">Rent:</span> <span>{formattedApplicationDetails.monthly_rent}</span></div>
+              </div>
 
-            {/* Employment Information */}
-            <div className="space-y-1">
-              <div className="font-semibold text-green-600 border-b border-green-100 pb-1 mb-2">Employment</div>
-              <div><span className="text-gray-500">Employer:</span> <span>{loan.employer_name}</span></div>
-              <div><span className="text-gray-500">Months:</span> <span>{loan.months_at_employer}</span></div>
-              <div><span className="text-gray-500">Source:</span> <span>{loan.income_source}</span></div>
-              <div><span className="text-gray-500">Pay:</span> <span>{loan.pay_frequency}</span></div>
-              <div><span className="text-gray-500">Income:</span> <span>${loan.monthly_income}</span></div>
-            </div>
+              {/* Employment Information */}
+              <div className="space-y-1">
+                <div className="font-semibold text-green-600 border-b border-green-100 pb-1 mb-2">Employment</div>
+                <div><span className="text-gray-500">Employer:</span> <span>{formattedApplicationDetails.employer_name}</span></div>
+                <div><span className="text-gray-500">Months:</span> <span>{formattedApplicationDetails.months_at_employer}</span></div>
+                <div><span className="text-gray-500">Source:</span> <span>{getIncomeSourceLabel(formattedApplicationDetails.income_source)}</span></div>
+                <div><span className="text-gray-500">Pay:</span> <span>{getPayFrequencyLabel(formattedApplicationDetails.pay_frequency)}</span></div>
+                <div><span className="text-gray-500">Income:</span> <span>{formattedApplicationDetails.monthly_income}</span></div>
+              </div>
 
-            {/* Loan & Case Information */}
-            <div className="space-y-1">
-              <div className="font-semibold text-green-600 border-b border-green-100 pb-1 mb-2">Loan & Case</div>
-              <div><span className="text-gray-500">Amount:</span> <span className="font-bold text-green-700 text-base">${loan.loan_amount}</span></div>
-              <div><span className="text-gray-500">Residence:</span> <span>{loan.residence_type}</span></div>
-              <div><span className="text-gray-500">Attorney:</span> <span>{loan.attorneyName}</span></div>
-              <div><span className="text-gray-500">Case Type:</span> <span>{loan.caseType}</span></div>
-              <div><span className="text-gray-500">Priority:</span> <span className={`px-1 py-0.5 rounded text-xs ${getPriorityColor(loan.priority)}`}>{loan.priority}</span></div>
+              {/* Loan & Case Information */}
+              <div className="space-y-1">
+                <div className="font-semibold text-green-600 border-b border-green-100 pb-1 mb-2">Loan & Case</div>
+                <div><span className="text-gray-500">Amount:</span> <span className="font-bold text-green-700 text-base">{formattedApplicationDetails.loan_amount}</span></div>
+                <div><span className="text-gray-500">Residence:</span> <span>{getResidenceTypeLabel(formattedApplicationDetails.residence_type)}</span></div>
+                <div><span className="text-gray-500">Purpose:</span> <span>{formattedApplicationDetails.loan_purpose || 'N/A'}</span></div>
+                <div><span className="text-gray-500">Status:</span> <span className={`px-1 py-0.5 rounded text-xs ${getStatusColor(formattedApplicationDetails.status)}`}>{formattedApplicationDetails.status}</span></div>
+                <div><span className="text-gray-500">Updated:</span> <span>{formattedApplicationDetails.updated_at}</span></div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+              {/* Fallback to basic loan data if details not available */}
+              <div className="space-y-1">
+                <div className="font-semibold text-green-600 border-b border-green-100 pb-1 mb-2">Personal</div>
+                <div><span className="text-gray-500">Name:</span> <span className="font-medium">{loan.firstname} {loan.last_name}</span></div>
+                <div><span className="text-gray-500">Email:</span> <span>{loan.email}</span></div>
+                <div><span className="text-gray-500">Phone:</span> <span>{loan.phone_number}</span></div>
+                <div><span className="text-gray-500">DOB:</span> <span>{loan.dob}</span></div>
+                <div><span className="text-gray-500">SSN:</span> <span>{loan.ssn}</span></div>
+              </div>
+
+              <div className="space-y-1">
+                <div className="font-semibold text-green-600 border-b border-green-100 pb-1 mb-2">Address</div>
+                <div><span className="text-gray-500">Street:</span> <span>{loan.street_address}</span></div>
+                <div><span className="text-gray-500">City:</span> <span>{loan.city}</span></div>
+                <div><span className="text-gray-500">State:</span> <span>{loan.state}</span></div>
+                <div><span className="text-gray-500">ZIP:</span> <span>{loan.zip_code}</span></div>
+                <div><span className="text-gray-500">At Addr:</span> <span>{loan.months_at_address} mo</span></div>
+                <div><span className="text-gray-500">Rent:</span> <span>${loan.monthly_rent}</span></div>
+              </div>
+
+              <div className="space-y-1">
+                <div className="font-semibold text-green-600 border-b border-green-100 pb-1 mb-2">Employment</div>
+                <div><span className="text-gray-500">Employer:</span> <span>{loan.employer_name}</span></div>
+                <div><span className="text-gray-500">Months:</span> <span>{loan.months_at_employer}</span></div>
+                <div><span className="text-gray-500">Source:</span> <span>{loan.income_source}</span></div>
+                <div><span className="text-gray-500">Pay:</span> <span>{loan.pay_frequency}</span></div>
+                <div><span className="text-gray-500">Income:</span> <span>${loan.monthly_income}</span></div>
+              </div>
+
+              <div className="space-y-1">
+                <div className="font-semibold text-green-600 border-b border-green-100 pb-1 mb-2">Loan & Case</div>
+                <div><span className="text-gray-500">Amount:</span> <span className="font-bold text-green-700 text-base">${loan.loan_amount}</span></div>
+                <div><span className="text-gray-500">Residence:</span> <span>{loan.residence_type}</span></div>
+                <div><span className="text-gray-500">Attorney:</span> <span>{loan.attorneyName}</span></div>
+                <div><span className="text-gray-500">Case Type:</span> <span>{loan.caseType}</span></div>
+                <div><span className="text-gray-500">Priority:</span> <span className={`px-1 py-0.5 rounded text-xs ${getPriorityColor(loan.priority)}`}>{loan.priority}</span></div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

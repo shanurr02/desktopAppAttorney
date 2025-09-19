@@ -1,14 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import { LoaderCircle, Search } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { useApplications } from '../../hooks';
+import DashboardCard from '../Dashboard/DashboardCard';
 import { Button } from '../index';
 import LoanCard from './LoanCard';
-import DashboardCard from '../Dashboard/DashboardCard';
-import { LoanFormData } from '../../validation';
-import { useApplications } from '../../hooks';
-import { Search } from 'lucide-react';
 
 // Extended loan data type for display
 interface LoanData {
   id: string;
+  application_id: string;
   loan_amount: string;
   residence_type: string;
   next_page?: string;
@@ -40,157 +40,19 @@ interface LoanListProps {
   loans?: LoanData[];
 }
 
-// Sample loan data matching the Dashboard design patterns
-const sampleLoans: LoanData[] = [
-  {
-    id: '1',
-    firstname: 'Aliah',
-    last_name: 'Lane',
-    email: 'aliah.lane@email.com',
-    phone_number: '(555) 123-4567',
-    dob: '03/15/1985',
-    ssn: '123-45-6789',
-    street_address: '123 Main Street',
-    city: 'New York',
-    state: 'NY',
-    zip_code: '10001',
-    months_at_address: '24',
-    monthly_rent: '2500',
-    employer_name: 'Tech Solutions Inc',
-    months_at_employer: '18',
-    income_source: 'Employment',
-    pay_frequency: 'Bi-weekly',
-    monthly_income: '6500',
-    loan_amount: '25000',
-    residence_type: 'Rent',
-    status: 'approved',
-    applicationDate: '2024-01-15',
-    attorneyName: 'John Smith',
-    caseType: 'Personal Injury',
-    priority: 'high'
-  },
-  {
-    id: '2',
-    firstname: 'Lana',
-    last_name: 'Steiner',
-    email: 'lana.steiner@email.com',
-    phone_number: '(555) 234-5678',
-    dob: '07/22/1990',
-    ssn: '234-56-7890',
-    street_address: '456 Oak Avenue',
-    city: 'Los Angeles',
-    state: 'CA',
-    zip_code: '90210',
-    months_at_address: '36',
-    monthly_rent: '3200',
-    employer_name: 'Creative Agency LLC',
-    months_at_employer: '24',
-    income_source: 'Employment',
-    pay_frequency: 'Monthly',
-    monthly_income: '7200',
-    loan_amount: '18000',
-    residence_type: 'Rent',
-    status: 'pending',
-    applicationDate: '2024-01-14',
-    attorneyName: 'Sarah Johnson',
-    caseType: 'Medical Malpractice',
-    priority: 'medium'
-  },
-  {
-    id: '3',
-    firstname: 'Koray',
-    last_name: 'Okumus',
-    email: 'koray.okumus@email.com',
-    phone_number: '(555) 345-6789',
-    dob: '11/08/1988',
-    ssn: '345-67-8901',
-    street_address: '789 Pine Street',
-    city: 'Chicago',
-    state: 'IL',
-    zip_code: '60601',
-    months_at_address: '12',
-    monthly_rent: '1800',
-    employer_name: 'Finance Corp',
-    months_at_employer: '30',
-    income_source: 'Employment',
-    pay_frequency: 'Bi-weekly',
-    monthly_income: '5800',
-    loan_amount: '32000',
-    residence_type: 'Own',
-    status: 'approved',
-    applicationDate: '2024-01-13',
-    attorneyName: 'Michael Brown',
-    caseType: 'Employment Law',
-    priority: 'high'
-  },
-  {
-    id: '4',
-    firstname: 'Joshua',
-    last_name: 'Wilson',
-    email: 'joshua.wilson@email.com',
-    phone_number: '(555) 456-7890',
-    dob: '05/12/1982',
-    ssn: '456-78-9012',
-    street_address: '321 Elm Street',
-    city: 'Houston',
-    state: 'TX',
-    zip_code: '77001',
-    months_at_address: '48',
-    monthly_rent: '2200',
-    employer_name: 'Healthcare Systems',
-    months_at_employer: '36',
-    income_source: 'Employment',
-    pay_frequency: 'Monthly',
-    monthly_income: '8500',
-    loan_amount: '15000',
-    residence_type: 'Rent',
-    status: 'funded',
-    applicationDate: '2024-01-12',
-    attorneyName: 'Emily Davis',
-    caseType: 'Workers Compensation',
-    priority: 'low'
-  },
-  {
-    id: '5',
-    firstname: 'Maria',
-    last_name: 'Rodriguez',
-    email: 'maria.rodriguez@email.com',
-    phone_number: '(555) 567-8901',
-    dob: '09/25/1993',
-    ssn: '567-89-0123',
-    street_address: '654 Maple Drive',
-    city: 'Miami',
-    state: 'FL',
-    zip_code: '33101',
-    months_at_address: '18',
-    monthly_rent: '2800',
-    employer_name: 'Legal Services Inc',
-    months_at_employer: '12',
-    income_source: 'Employment',
-    pay_frequency: 'Bi-weekly',
-    monthly_income: '6200',
-    loan_amount: '22000',
-    residence_type: 'Rent',
-    status: 'rejected',
-    applicationDate: '2024-01-11',
-    attorneyName: 'David Lee',
-    caseType: 'Family Law',
-    priority: 'medium'
-  }
-];
 
 const LoanList: React.FC<LoanListProps> = ({ loans }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'date' | 'amount' | 'name'>('date');
-  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
   // Fetch applications from API
   const { applications, isLoading, isError, error, refetch } = useApplications();
   
-  // Use API data if available, otherwise fall back to sample data or prop
-  const loanData = applications.length > 0 ? applications : (loans || sampleLoans);
+  // Use API data if available, otherwise fall back to prop data
+  const loanData = applications.length > 0 ? applications : (loans || []);
 
   // Filter and sort loans
   const filteredAndSortedLoans = useMemo(() => {
@@ -225,13 +87,9 @@ const LoanList: React.FC<LoanListProps> = ({ loans }) => {
   }, [loanData, searchTerm, statusFilter, priorityFilter, sortBy]);
 
   const toggleCardExpansion = (loanId: string) => {
-    const newExpanded = new Set(expandedCards);
-    if (newExpanded.has(loanId)) {
-      newExpanded.delete(loanId);
-    } else {
-      newExpanded.add(loanId);
-    }
-    setExpandedCards(newExpanded);
+    // If clicking on the currently expanded card, close it
+    // Otherwise, expand the clicked card (closing any previously expanded card)
+    setExpandedCard(expandedCard === loanId ? null : loanId);
   };
 
   const getStatusCounts = () => {
@@ -274,7 +132,8 @@ const LoanList: React.FC<LoanListProps> = ({ loans }) => {
         {/* Loading Content */}
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+            {/* <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div> */}
+            <LoaderCircle  className="animate-spin h-12 w-12 text-green-600 mx-auto mb-4" />            
             <p className="text-gray-600 text-lg">Loading applications...</p>
             <p className="text-gray-400 text-sm mt-2">Please wait while we fetch your data</p>
           </div>
@@ -448,7 +307,7 @@ const LoanList: React.FC<LoanListProps> = ({ loans }) => {
             Showing {filteredAndSortedLoans.length} of {loanData.length} applications
           </div>
           <div className="text-sm text-gray-500">
-            {expandedCards.size} expanded
+            {expandedCard ? '1 expanded' : '0 expanded'}
           </div>
         </div>
       </div>
@@ -467,7 +326,7 @@ const LoanList: React.FC<LoanListProps> = ({ loans }) => {
               <LoanCard
                 key={loan.id}
                 loan={loan}
-                isExpanded={expandedCards.has(loan.id)}
+                isExpanded={expandedCard === loan.id}
                 onToggleExpanded={() => toggleCardExpansion(loan.id)}
               />
             ))

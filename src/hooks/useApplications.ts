@@ -20,7 +20,8 @@ export const useApplications = () => {
 
   // Transform API data to match our LoanData interface
   const transformedApplications = applicationsQuery.data?.map((app, index) => ({
-    id: `api-${index}`,
+    id: app.application_id, // Use application_id as the unique identifier
+    application_id: app.application_id, // Include application_id for API calls
     firstname: app.first_name,
     last_name: app.last_name,
     email: app.email,

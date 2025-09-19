@@ -22,6 +22,7 @@ const SubmitOffersStep: React.FC<SubmitOffersStepProps> = ({
   successMessage
 }) => {
   const [showFullForm, setShowFullForm] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   
   // Validate complete form data using the schema
   const validationResult = validateCompleteLoan(formData);
@@ -159,6 +160,34 @@ const SubmitOffersStep: React.FC<SubmitOffersStepProps> = ({
             </div>
           </div>
         )}
+
+        {/* Consent Checkbox and Disclaimer */}
+        <div className="mb-6">
+          <div className="bg-white rounded-md p-4 border border-gray-200 shadow-sm">
+            <div className="flex items-start space-x-3">
+              <input
+                type="checkbox"
+                id="consent-checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="mt-1 h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+              />
+              <label htmlFor="consent-checkbox" className="text-sm text-gray-700 cursor-pointer">
+                I agree to the use of my credit information for pre-qualification.
+              </label>
+            </div>
+            
+            <div className="mt-4 text-xs text-gray-600 space-y-2">
+              <p>
+                By selecting "Agree & Check My Offers," you consent to CaseFunders and its partners obtaining your credit information from one or more consumer reporting agencies for the sole purpose of pre-qualifying you for potential financing offers.
+              </p>
+              <p>
+                Pre-qualification will not affect your credit score. If you choose to proceed with a lender's offer, the lender may perform a hard inquiry, which could impact your credit score.
+              </p>
+            </div>
+          </div>
+        </div>
+        
          {/* Navigation Buttons */}
         <div className="pt-[30px] border-gray-200 border-t-[1px] gap-1 flex flex-col sm:flex-row justify-end">
           <Button
@@ -173,7 +202,7 @@ const SubmitOffersStep: React.FC<SubmitOffersStepProps> = ({
             type="button"
             variant="primary"
             onClick={onSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !agreedToTerms}
             className="w-full sm:w-auto"
           >
             {isSubmitting ? "Submitting Application..." : "View Pre-Qualified Offers"}

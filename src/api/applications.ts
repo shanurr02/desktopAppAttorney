@@ -2,6 +2,7 @@ import { apiClient } from './auth';
 
 // Types based on the API response
 export interface ApplicationData {
+  application_id: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -62,7 +63,7 @@ export const applicationsAPI = {
 
   getApplicationDetails: async (requestId: string): Promise<LoanApplicationDetails> => {
     try {
-      const response = await apiClient.get(`/api/get_application_details/${requestId}`);
+      const response = await apiClient.get(`/api/application_details?application_id=${requestId}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching application details:', error);
