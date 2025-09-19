@@ -1,10 +1,10 @@
 import React from 'react';
 import { Button } from '../index';
-import { LoanFormData, LoanValidationErrors } from '../../validation';
+import { LoanRequestData, LoanRequestValidationErrors } from '../../validation';
 
 interface LoanRequestStepProps {
-  formData: LoanFormData;
-  validationErrors: LoanValidationErrors;
+  formData: LoanRequestData;
+  validationErrors: LoanRequestValidationErrors;
   error: string;
   onLoanAmountChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onResidenceTypeClick: (value: string) => void;

@@ -1,13 +1,14 @@
 import React, { useState, useCallback } from 'react';
 import { z } from 'zod';
 import { Input, Button } from '../index';
-import { LoanFormData, LoanValidationErrors, loanSchema } from '../../validation';
+import { PersonalDetailsData, PersonalDetailsValidationErrors, validatePersonalDetails } from '../../validation';
 import DateSelector from '../Dashboard/DateSelector';
 import { useAddressValidation, usePhoneValidation } from '../../hooks';
 
 interface PersonalDetailsStepProps {
-  formData: LoanFormData;
-  validationErrors: LoanValidationErrors;
+  formData: PersonalDetailsData;
+  validationErrors: PersonalDetailsValidationErrors;
+  error: string;
   onFirstNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onLastNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onEmailChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -23,12 +24,13 @@ interface PersonalDetailsStepProps {
   onPhoneNumberChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onPrevious: () => void;
   onNext: () => void;
-  clearFieldError?: (field: keyof LoanValidationErrors) => void;
+  clearFieldError?: (field: keyof PersonalDetailsValidationErrors) => void;
 }
 
 const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
   formData,
   validationErrors,
+  error,
   onFirstNameChange,
   onLastNameChange,
   onEmailChange,
@@ -63,11 +65,17 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
   // Track previous phone number to detect actual changes
   const [previousPhone, setPreviousPhone] = useState(formData.phone_number);
   
-  // Reset phone validation only when phone number actually changes and hasn't been validated
+  // Initialize phone validation status - preserve validation if phone number hasn't changed
   React.useEffect(() => {
+    // If phone number hasn't changed and was already validated, keep the validation status
+    if (formData.phone_number === previousPhone && isPhoneAlreadyValidated(formData.phone_number)) {
+      // Phone is already validated and hasn't changed, keep the validation status
+      return;
+    }
+    
+    // Only reset validation if the phone number actually changed and hasn't been validated before
     if (formData.phone_number !== previousPhone) {
       setPreviousPhone(formData.phone_number);
-      // Only reset validation if the phone number actually changed and hasn't been validated before
       if (formData.phone_number.length > 0 && !isPhoneAlreadyValidated(formData.phone_number)) {
         resetPhoneValidation();
       }
@@ -230,12 +238,20 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
     { value: "DC", label: "District of Columbia (Washington, D.C.)" },
   ];
 
-  const isFormValid = formData.firstname && formData.last_name && formData.email &&
-    formData.dob && formData.ssn && formData.phone_number &&
-    formData.street_address && formData.city && formData.state && formData.zip_code &&
-    formData.months_at_address && formData.monthly_rent &&
-    (phoneValidationStatus === 'valid' || isPhoneAlreadyValidated(formData.phone_number)) && // Require phone validation to be completed successfully
-    !emailError; // Require email to be valid
+  // Validate form data using the schema
+  const validationResult = validatePersonalDetails(formData);
+  
+  // Debug: Log validation result to see what's failing
+  console.log('Validation result:', validationResult);
+  console.log('Phone validation status:', phoneValidationStatus);
+  console.log('Email error:', emailError);
+  
+  // Form is valid if schema validation passes AND phone/email are valid
+  const isFormValid = validationResult.isValid && 
+    // Phone validation: valid OR already validated OR empty
+    (phoneValidationStatus === 'valid' || isPhoneAlreadyValidated(formData.phone_number) || formData.phone_number.length === 0) &&
+    // Email validation: no error OR empty
+    (!emailError || formData.email.length === 0);
 
   return (
     <form className="flex-1 w-full">
@@ -327,18 +343,18 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
               </div>
               <Button
                 type="button"
-                variant="outline"
+                variant={isPhoneAlreadyValidated(formData.phone_number) ? "primary" : "outline"}
                 onClick={async () => {
                   const cleanPhone = formData.phone_number.replace(/\D/g, '');
                   if (cleanPhone.length === 10) {
                     await validatePhoneImmediate(formData.phone_number);
                   }
                 }}
-                disabled={!formData.phone_number || formData.phone_number.replace(/\D/g, '').length !== 10 || isPhoneValidating}
+                disabled={!formData.phone_number || formData.phone_number.replace(/\D/g, '').length !== 10 || isPhoneValidating || isPhoneAlreadyValidated(formData.phone_number)}
                 className="px-4 py-2 text-sm whitespace-nowrap"
               >
                 {isPhoneValidating ? 'Checking...' : 
-                 isPhoneAlreadyValidated(formData.phone_number) ? 'Validated' : 'Check'}
+                 isPhoneAlreadyValidated(formData.phone_number) ? '✓ Validated' : 'Check'}
               </Button>
             </div>
             {validationErrors.phone_number && (
@@ -568,6 +584,18 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
             )}
           </div>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
+            <div className="flex items-center">
+              <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              <span>{error}</span>
+            </div>
+          </div>
+        )}
 
         {/* Navigation Buttons */}
         <div className="pt-[30px] border-gray-200 border-t-[1px] gap-1 flex justify-end">

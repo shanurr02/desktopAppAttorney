@@ -8,22 +8,35 @@ import {
     StepperNav
 } from "../components";
 import { useLoanForm, useFormValidation } from "../hooks";
-import { LoanFormData, type LoanValidationErrors } from "../validation";
-import { loanSchema } from "../validation/loanSchema";
+import { 
+    LoanRequestData, 
+    PersonalDetailsData, 
+    EmploymentDetailsData, 
+    CompleteLoanData,
+    LoanRequestValidationErrors,
+    PersonalDetailsValidationErrors,
+    EmploymentDetailsValidationErrors,
+    CompleteLoanValidationErrors,
+    validateLoanRequest,
+    validatePersonalDetails,
+    validateEmploymentDetails,
+    validateCompleteLoan,
+    completeLoanSchema
+} from "../validation";
 import { extractZodErrors } from "../utils";
 import NavbarDashboard from "../components/Dashboard/NavbarDashboard";
 
 const LoanApplication: React.FC = () => {
     const { submitApplication, isSubmitting } = useLoanForm();
 
-    // Use form validation hook like Login.tsx
+    // Use form validation hook for complete loan validation
     const {
         errors: validationErrors,
         validate,
         clearFieldError,
         clearAllErrors,
         setFieldError,
-    } = useFormValidation<LoanValidationErrors>(loanSchema);
+    } = useFormValidation<CompleteLoanValidationErrors>(completeLoanSchema);
 
     // Step management
     const [currentStep, setCurrentStep] = useState(0);
@@ -81,8 +94,37 @@ const LoanApplication: React.FC = () => {
         return num.toString();
     };
 
-    // Create form data object for validation like Login.tsx
-    const getFormData = useCallback((): LoanFormData => ({
+    // Create form data objects for each step
+    const getLoanRequestData = useCallback((): LoanRequestData => ({
+        loan_amount,
+        residence_type,
+        next_page: "loan_request_summary",
+    }), [loan_amount, residence_type]);
+
+    const getPersonalDetailsData = useCallback((): PersonalDetailsData => ({
+        firstname,
+        last_name,
+        email,
+        dob,
+        ssn,
+        street_address,
+        city,
+        state,
+        months_at_address,
+        monthly_rent,
+        zip_code,
+        phone_number,
+    }), [firstname, last_name, email, dob, ssn, street_address, city, state, months_at_address, monthly_rent, zip_code, phone_number]);
+
+    const getEmploymentDetailsData = useCallback((): EmploymentDetailsData => ({
+        employer_name,
+        months_at_employer,
+        income_source,
+        pay_frequency,
+        monthly_income,
+    }), [employer_name, months_at_employer, income_source, pay_frequency, monthly_income]);
+
+    const getCompleteFormData = useCallback((): CompleteLoanData => ({
         loan_amount,
         residence_type,
         next_page: "loan_request_summary",
@@ -105,105 +147,58 @@ const LoanApplication: React.FC = () => {
         employer_name,
     }), [loan_amount, residence_type, firstname, last_name, email, dob, ssn, street_address, city, state, months_at_address, monthly_rent, zip_code, phone_number, income_source, pay_frequency, monthly_income, months_at_employer, employer_name]);
 
-    // Step validation - validate specific fields for each step with proper error handling
-    const validateStep = useCallback((step: number, formData: LoanFormData) => {
-        console.log(`Validating step ${step}:`, formData);
+    // Step validation using the new validation functions
+    const validateStep = useCallback((step: number) => {
+        console.log(`Validating step ${step}`);
         try {
             switch (step) {
                 case 0: // Loan Request
-                    // Validate loan amount and residence type
-                    if (!formData.loan_amount || !formData.residence_type) {
-                        return false;
-                    }
-                    // Additional validation for loan amount format
-                    const loanAmount = parseInt(formData.loan_amount);
-                    if (isNaN(loanAmount) || loanAmount < 1 || loanAmount > 50000) {
-                        setFieldError('loan_amount', 'Loan amount must be between $1 and $1000');
+                    const loanRequestData = getLoanRequestData();
+                    const loanRequestResult = validateLoanRequest(loanRequestData);
+                    if (!loanRequestResult.isValid) {
+                        Object.entries(loanRequestResult.errors).forEach(([field, message]) => {
+                            setFieldError(field as keyof CompleteLoanValidationErrors, message);
+                        });
                         return false;
                     }
                     break;
                 case 1: // Personal Details
-                    // Check required fields
-                    const requiredPersonalFields = [
-                        'firstname', 'last_name', 'email', 'dob', 'ssn', 'phone_number',
-                        'street_address', 'city', 'state', 'zip_code', 'months_at_address', 'monthly_rent'
-                    ];
-                    for (const field of requiredPersonalFields) {
-                        if (!formData[field as keyof LoanFormData]) {
-                            setFieldError(field as keyof LoanValidationErrors, `${field.replace('_', ' ')} is required`);
-                            return false;
-                        }
-                    }
-                    // Validate email format
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (!emailRegex.test(formData.email)) {
-                        setFieldError('email', 'Please enter a valid email address');
+                    const personalDetailsData = getPersonalDetailsData();
+                    const personalDetailsResult = validatePersonalDetails(personalDetailsData);
+                    if (!personalDetailsResult.isValid) {
+                        Object.entries(personalDetailsResult.errors).forEach(([field, message]) => {
+                            setFieldError(field as keyof CompleteLoanValidationErrors, message);
+                        });
                         return false;
-                    }
-                    // Validate SSN format
-                    const ssnRegex = /^\d{3}-\d{2}-\d{4}$/;
-                    if (!ssnRegex.test(formData.ssn)) {
-                        setFieldError('ssn', 'SSN must be in XXX-XX-XXXX format');
-                        return false;
-                    }
-                    // Validate phone format
-                    const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
-                    if (!phoneRegex.test(formData.phone_number)) {
-                        setFieldError('phone_number', 'Phone must be in (XXX) XXX-XXXX format');
-                        return false;
-                    }
-                    // Validate ZIP code format
-                    const zipRegex = /^\d{5}(-\d{4})?$/;
-                    if (!zipRegex.test(formData.zip_code)) {
-                        setFieldError('zip_code', 'Invalid zip code format');
-                        return false;
-                    }
-                    // Validate numeric fields for personal details
-                    const personalNumericFields = ['months_at_address', 'monthly_rent'];
-                    for (const field of personalNumericFields) {
-                        const value = formData[field as keyof LoanFormData];
-                        if (!value || !/^\d+$/.test(value)) {
-                            setFieldError(field as keyof LoanValidationErrors, `${field.replace('_', ' ')} must be a number`);
-                            return false;
-                        }
                     }
                     break;
                 case 2: // Employment Details
-                    // Check required fields
-                    const requiredEmploymentFields = [
-                        'employer_name', 'months_at_employer', 'income_source', 'pay_frequency', 'monthly_income'
-                    ];
-                    for (const field of requiredEmploymentFields) {
-                        if (!formData[field as keyof LoanFormData]) {
-                            setFieldError(field as keyof LoanValidationErrors, `${field.replace('_', ' ')} is required`);
-                            return false;
-                        }
-                    }
-                    // Validate numeric fields
-                    const numericFields = ['months_at_employer', 'monthly_income'];
-                    for (const field of numericFields) {
-                        const value = formData[field as keyof LoanFormData];
-                        if (!value || !/^\d+$/.test(value)) {
-                            setFieldError(field as keyof LoanValidationErrors, `${field.replace('_', ' ')} must be a number`);
-                            return false;
-                        }
+                    const employmentDetailsData = getEmploymentDetailsData();
+                    const employmentDetailsResult = validateEmploymentDetails(employmentDetailsData);
+                    if (!employmentDetailsResult.isValid) {
+                        Object.entries(employmentDetailsResult.errors).forEach(([field, message]) => {
+                            setFieldError(field as keyof CompleteLoanValidationErrors, message);
+                        });
+                        return false;
                     }
                     break;
-                case 3: // Submit Offers - validate all fields using full schema
-                    loanSchema.parse(formData);
+                case 3: // Submit Offers - validate all fields using complete schema
+                    const completeFormData = getCompleteFormData();
+                    const completeResult = validateCompleteLoan(completeFormData);
+                    if (!completeResult.isValid) {
+                        Object.entries(completeResult.errors).forEach(([field, message]) => {
+                            setFieldError(field as keyof CompleteLoanValidationErrors, message);
+                        });
+                        return false;
+                    }
                     break;
             }
             return true;
         } catch (error) {
-            // Parse validation errors and set them using the validation hook
-            const validationErrors = extractZodErrors<LoanValidationErrors>(error);
-            // Set each field error individually
-            Object.entries(validationErrors).forEach(([field, message]) => {
-                setFieldError(field as keyof LoanValidationErrors, message as string);
-            });
+            console.error('Validation error:', error);
             return false;
         }
-    }, [setFieldError]);
+    }, [getLoanRequestData, getPersonalDetailsData, getEmploymentDetailsData, getCompleteFormData, setFieldError]);
 
     // Stepper configuration
     const steps = [
@@ -234,8 +229,7 @@ const LoanApplication: React.FC = () => {
         setError("");
 
         // Validate current step before proceeding
-        const formData = getFormData();
-        const isValid = validateStep(currentStep, formData);
+        const isValid = validateStep(currentStep);
 
         if (isValid) {
             // Clear errors only if validation passes
@@ -292,23 +286,7 @@ const LoanApplication: React.FC = () => {
         setSuccessMessage("");
 
         // Validate the complete form before submission
-        const formData = getFormData();
-        
-        // Check if any required fields are empty
-        const requiredFields = [
-            'loan_amount', 'residence_type', 'firstname', 'last_name', 'email', 
-            'dob', 'ssn', 'phone_number', 'street_address', 'city', 'state', 
-            'zip_code', 'months_at_address', 'monthly_rent', 'employer_name', 
-            'months_at_employer', 'income_source', 'pay_frequency', 'monthly_income'
-        ];
-        
-        const emptyFields = requiredFields.filter(field => !formData[field as keyof LoanFormData]);
-        if (emptyFields.length > 0) {
-            setError(`Please fill in the following required fields: ${emptyFields.join(', ')}`);
-            return;
-        }
-        
-        const isValid = validateStep(3, formData); // Step 3 = Submit Offers (full validation)
+        const isValid = validateStep(3); // Step 3 = Submit Offers (full validation)
 
         if (!isValid) {
             setError("Please fix all validation errors before submitting.");
@@ -316,6 +294,7 @@ const LoanApplication: React.FC = () => {
         }
 
         try {
+            const formData = getCompleteFormData();
             console.log("Submitting form data:", formData);
             console.log("Form data keys:", Object.keys(formData));
             console.log("Form data values:", Object.values(formData));
@@ -506,12 +485,11 @@ const LoanApplication: React.FC = () => {
             );
         }
 
-        const formData = getFormData();
         switch (currentStep) {
             case 0:
                 return (
                     <LoanRequestStep
-                        formData={formData}
+                        formData={getLoanRequestData()}
                         validationErrors={validationErrors}
                         error={error}
                         onLoanAmountChange={handleLoanAmountChange}
@@ -522,8 +500,9 @@ const LoanApplication: React.FC = () => {
             case 1:
                 return (
                     <PersonalDetailsStep
-                        formData={formData}
+                        formData={getPersonalDetailsData()}
                         validationErrors={validationErrors}
+                        error={error}
                         onFirstNameChange={handleFirstNameChange}
                         onLastNameChange={handleLastNameChange}
                         onEmailChange={handleEmailChange}
@@ -545,7 +524,7 @@ const LoanApplication: React.FC = () => {
             case 2:
                 return (
                     <EmploymentDetailsStep
-                        formData={formData}
+                        formData={getEmploymentDetailsData()}
                         validationErrors={validationErrors}
                         error={error}
                         onEmployerNameChange={handleEmployerNameChange}
@@ -560,7 +539,7 @@ const LoanApplication: React.FC = () => {
             case 3:
                 return (
                     <SubmitOffersStep
-                        formData={formData}
+                        formData={getCompleteFormData()}
                         validationErrors={validationErrors}
                         error={error}
                         isSubmitting={isSubmitting}

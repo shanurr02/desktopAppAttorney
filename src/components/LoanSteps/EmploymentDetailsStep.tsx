@@ -1,10 +1,10 @@
 import React from 'react';
 import { Input, Button } from '../index';
-import { LoanFormData, LoanValidationErrors } from '../../validation';
+import { EmploymentDetailsData, EmploymentDetailsValidationErrors, validateEmploymentDetails } from '../../validation';
 
 interface EmploymentDetailsStepProps {
-  formData: LoanFormData;
-  validationErrors: LoanValidationErrors;
+  formData: EmploymentDetailsData;
+  validationErrors: EmploymentDetailsValidationErrors;
   error: string;
   onEmployerNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onMonthsAtEmployerChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -43,9 +43,9 @@ const EmploymentDetailsStep: React.FC<EmploymentDetailsStepProps> = ({
     { value: "4", label: "Other" },
   ];
 
-  const isFormValid = formData.employer_name && formData.months_at_employer &&
-    formData.income_source && formData.pay_frequency &&
-    formData.monthly_income;
+  // Validate form data using the schema
+  const validationResult = validateEmploymentDetails(formData);
+  const isFormValid = validationResult.isValid;
 
   return (
     <form className="flex-1 w-full">
@@ -135,6 +135,18 @@ const EmploymentDetailsStep: React.FC<EmploymentDetailsStepProps> = ({
             )}
           </div>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
+            <div className="flex items-center">
+              <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              <span>{error}</span>
+            </div>
+          </div>
+        )}
 
         {/* Navigation Buttons */}
         <div className="pt-[30px] border-gray-200 border-t-[1px] gap-1 flex justify-end">

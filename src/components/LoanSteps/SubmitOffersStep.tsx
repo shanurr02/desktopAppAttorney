@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Button } from '../index';
-import { LoanFormData, LoanValidationErrors } from '../../validation';
+import { CompleteLoanData, CompleteLoanValidationErrors, validateCompleteLoan } from '../../validation';
 
 interface SubmitOffersStepProps {
-  formData: LoanFormData;
-  validationErrors: LoanValidationErrors;
+  formData: CompleteLoanData;
+  validationErrors: CompleteLoanValidationErrors;
   error: string;
   isSubmitting: boolean;
   onPrevious: () => void;
@@ -22,6 +22,37 @@ const SubmitOffersStep: React.FC<SubmitOffersStepProps> = ({
   successMessage
 }) => {
   const [showFullForm, setShowFullForm] = useState(false);
+  
+  // Validate complete form data using the schema
+  const validationResult = validateCompleteLoan(formData);
+
+  // Map numeric values to human-readable labels
+  const incomeSourceOptions = [
+    { value: "1", label: "Employment" },
+    { value: "2", label: "Self-Employed" },
+    { value: "3", label: "Unemployment Benefits" },
+    { value: "4", label: "Social Security" },
+    { value: "5", label: "Disability Benefits" },
+    { value: "6", label: "Other" },
+  ];
+
+  const payFrequencyOptions = [
+    { value: "1", label: "Weekly" },
+    { value: "2", label: "Bi-Weekly" },
+    { value: "3", label: "Monthly" },
+    { value: "4", label: "Other" },
+  ];
+
+  // Helper functions to get labels
+  const getIncomeSourceLabel = (value: string) => {
+    const option = incomeSourceOptions.find(opt => opt.value === value);
+    return option ? option.label : value;
+  };
+
+  const getPayFrequencyLabel = (value: string) => {
+    const option = payFrequencyOptions.find(opt => opt.value === value);
+    return option ? option.label : value;
+  };
 
   return (
     <form className="flex-1 w-full">
@@ -72,8 +103,8 @@ const SubmitOffersStep: React.FC<SubmitOffersStepProps> = ({
                 <div className="font-semibold text-green-600 border-b border-green-100 pb-1 mb-1">Employment</div>
                 <div><span className="text-gray-500">Employer:</span> <span>{formData.employer_name}</span></div>
                 <div><span className="text-gray-500">Months:</span> <span>{formData.months_at_employer}</span></div>
-                <div><span className="text-gray-500">Source:</span> <span>{formData.income_source}</span></div>
-                <div><span className="text-gray-500">Pay:</span> <span>{formData.pay_frequency}</span></div>
+                <div><span className="text-gray-500">Source:</span> <span>{getIncomeSourceLabel(formData.income_source)}</span></div>
+                <div><span className="text-gray-500">Pay:</span> <span>{getPayFrequencyLabel(formData.pay_frequency)}</span></div>
                 <div><span className="text-gray-500">Income:</span> <span>${formData.monthly_income}</span></div>
               </div>
               {/* Loan */}
