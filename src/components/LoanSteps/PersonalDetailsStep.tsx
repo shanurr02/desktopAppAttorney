@@ -367,7 +367,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
             )}
             {(phoneValidationStatus === 'valid' || isPhoneAlreadyValidated(formData.phone_number)) && !validationErrors.phone_number && (
               <p className="text-green-600 text-xs">
-                ✓ Phone number validated successfully.
+                Valid phone number.
               </p>
             )}
           </div>
@@ -487,7 +487,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
             )}
             {zipValidationStatus === 'valid' && !validationErrors.zip_code && (
               <p className="text-green-600 text-xs">
-                ✓ ZIP code validated. City and state auto-filled.
+                Valid ZIP code. City and state auto-filled.
               </p>
             )}
           </div>
