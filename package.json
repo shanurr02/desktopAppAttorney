@@ -56,10 +56,12 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.87.4",
+    "@types/lodash.debounce": "^4.0.9",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.11.0",
     "date-fns": "^4.1.0",
     "electron-squirrel-startup": "^1.0.1",
+    "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.539.0",
     "postcss-loader": "^8.1.1",
     "react": "^18.3.1",

@@ -1,9 +1,10 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { z } from 'zod';
+import debounce from 'lodash.debounce';
 import { Input, Button } from '../index';
 import { PersonalDetailsData, PersonalDetailsValidationErrors, validatePersonalDetails } from '../../validation';
 import DateSelector from '../Dashboard/DateSelector';
-import { useAddressValidation } from '../../hooks';
+import { useAddressValidation, usePhoneValidation } from '../../hooks';
 
 interface PersonalDetailsStepProps {
   formData: PersonalDetailsData;
@@ -49,97 +50,127 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
   clearFieldError
 }) => {
   const { validateAddress } = useAddressValidation();
+  const { validatePhoneImmediate, isValidating: isPhoneValidating, validationStatus: phoneValidationStatus } = usePhoneValidation();
   const [isStateDropdownDisabled, setIsStateDropdownDisabled] = useState(true);
   const [zipValidationStatus, setZipValidationStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
   const [emailError, setEmailError] = useState<string>('');
-  const [phoneValidationStatus, setPhoneValidationStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
 
-  // Reset validation status when ZIP code changes
-  React.useEffect(() => {
-    if (formData.zip_code.length !== 5) {
-      setZipValidationStatus('idle');
-      setIsStateDropdownDisabled(true);
-    }
-  }, [formData.zip_code]);
-
-  // Debounced phone number validation
+  // Store callback functions in refs to avoid dependency issues
+  const onCityChangeRef = useRef(onCityChange);
+  const onStateChangeRef = useRef(onStateChange);
+  
+  // Update refs when callbacks change
   useEffect(() => {
+    onCityChangeRef.current = onCityChange;
+    onStateChangeRef.current = onStateChange;
+  }, [onCityChange, onStateChange]);
+
+  // Phone validation function
+  const validatePhoneNumber = useCallback(async (phone: string) => {
     const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
     
-    if (formData.phone_number.length === 0) {
-      setPhoneValidationStatus('idle');
+    if (phone.length === 0) {
       return;
     }
 
-    const timeoutId = setTimeout(() => {
-      if (phoneRegex.test(formData.phone_number)) {
-        setPhoneValidationStatus('valid');
-      } else {
-        setPhoneValidationStatus('invalid');
-      }
-    }, 500); // 500ms debounce
+    // Only validate if format is correct
+    if (!phoneRegex.test(phone)) {
+      return;
+    }
 
-    return () => clearTimeout(timeoutId);
-  }, [formData.phone_number]);
+    try {
+      await validatePhoneImmediate(phone);
+    } catch (error) {
+      console.error('Phone validation error:', error);
+    }
+  }, [validatePhoneImmediate]);
 
-  // Debounced ZIP code validation
-  useEffect(() => {
+  // ZIP validation function
+  const validateZipCode = useCallback(async (zipCode: string) => {
     const zipRegex = /^\d{5}(-\d{4})?$/;
     
-    if (formData.zip_code.length === 0) {
+    if (zipCode.length === 0) {
       setZipValidationStatus('idle');
       setIsStateDropdownDisabled(true);
       return;
     }
 
-    const timeoutId = setTimeout(async () => {
-      if (zipRegex.test(formData.zip_code)) {
-        try {
-          const addressData = await validateAddress(formData.zip_code);
-          if (addressData && addressData.city && addressData.state) {
-            // Create synthetic events to update city and state
-            const cityEvent = {
-              target: { value: addressData.city }
-            } as React.ChangeEvent<HTMLInputElement>;
-            
-            const stateEvent = {
-              target: { value: addressData.state }
-            } as React.ChangeEvent<HTMLSelectElement>;
-            
-            onCityChange(cityEvent);
-            onStateChange(stateEvent);
-            
-            setIsStateDropdownDisabled(true);
-            setZipValidationStatus('valid');
-          } else {
-            setIsStateDropdownDisabled(false);
-            setZipValidationStatus('invalid');
-          }
-        } catch (error: any) {
-          console.error('Address validation error:', error);
-          setIsStateDropdownDisabled(false);
-          setZipValidationStatus('invalid');
-          
-          // Clear city and state fields when ZIP is invalid
-          const clearCityEvent = {
-            target: { value: '' }
-          } as React.ChangeEvent<HTMLInputElement>;
-          
-          const clearStateEvent = {
-            target: { value: '' }
-          } as React.ChangeEvent<HTMLSelectElement>;
-          
-          onCityChange(clearCityEvent);
-          onStateChange(clearStateEvent);
-        }
-      } else {
-        setZipValidationStatus('invalid');
-        setIsStateDropdownDisabled(false);
-      }
-    }, 500); // 500ms debounce
+    if (!zipRegex.test(zipCode)) {
+      setZipValidationStatus('invalid');
+      setIsStateDropdownDisabled(false);
+      return;
+    }
 
-    return () => clearTimeout(timeoutId);
-  }, [formData.zip_code, validateAddress, onCityChange, onStateChange]);
+    try {
+      const addressData = await validateAddress(zipCode);
+      if (addressData && addressData.city && addressData.state) {
+        // Create synthetic events to update city and state
+        const cityEvent = {
+          target: { value: addressData.city }
+        } as React.ChangeEvent<HTMLInputElement>;
+        
+        const stateEvent = {
+          target: { value: addressData.state }
+        } as React.ChangeEvent<HTMLSelectElement>;
+        
+        onCityChangeRef.current(cityEvent);
+        onStateChangeRef.current(stateEvent);
+        
+        setIsStateDropdownDisabled(true);
+        setZipValidationStatus('valid');
+      } else {
+        setIsStateDropdownDisabled(false);
+        setZipValidationStatus('invalid');
+      }
+    } catch (error: any) {
+      console.error('Address validation error:', error);
+      setIsStateDropdownDisabled(false);
+      setZipValidationStatus('invalid');
+      
+      // Clear city and state fields when ZIP is invalid
+      const clearCityEvent = {
+        target: { value: '' }
+      } as React.ChangeEvent<HTMLInputElement>;
+      
+      const clearStateEvent = {
+        target: { value: '' }
+      } as React.ChangeEvent<HTMLSelectElement>;
+      
+      onCityChangeRef.current(clearCityEvent);
+      onStateChangeRef.current(clearStateEvent);
+    }
+  }, [validateAddress]);
+
+  // Create debounced functions using lodash
+  const debouncedPhoneValidation = useRef(
+    debounce((phone: string) => {
+      validatePhoneNumber(phone);
+    }, 500)
+  ).current;
+
+  const debouncedZipValidation = useRef(
+    debounce((zipCode: string) => {
+      validateZipCode(zipCode);
+    }, 500)
+  ).current;
+
+  // Phone validation effect
+  useEffect(() => {
+    debouncedPhoneValidation(formData.phone_number);
+  }, [formData.phone_number, debouncedPhoneValidation]);
+
+  // ZIP validation effect
+  useEffect(() => {
+    debouncedZipValidation(formData.zip_code);
+  }, [formData.zip_code, debouncedZipValidation]);
+
+  // Cleanup debounced functions on unmount
+  useEffect(() => {
+    return () => {
+      debouncedPhoneValidation.cancel();
+      debouncedZipValidation.cancel();
+    };
+  }, [debouncedPhoneValidation, debouncedZipValidation]);
 
   // Email validation function
   const validateEmail = useCallback((email: string) => {
@@ -296,33 +327,54 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Phone <span className="text-red-500">*</span></label>
-            <input
-              type="text"
-              value={formData.phone_number}
-              onChange={onPhoneNumberChange}
-              placeholder="(XXX) XXX-XXXX"
-              maxLength={14}
-              className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
-                validationErrors.phone_number 
-                  ? 'border-red-300 focus:border-red-500' 
-                  : phoneValidationStatus === 'valid'
-                  ? 'border-green-300 focus:border-green-500'
-                  : phoneValidationStatus === 'invalid'
-                  ? 'border-orange-300 focus:border-orange-500'
-                  : 'border-gray-300'
-              }`}
-            />
+            <div className="relative">
+              <input
+                type="text"
+                value={formData.phone_number}
+                onChange={onPhoneNumberChange}
+                placeholder="(XXX) XXX-XXXX"
+                maxLength={14}
+                className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
+                  validationErrors.phone_number 
+                    ? 'border-red-300 focus:border-red-500' 
+                    : phoneValidationStatus === 'valid'
+                    ? 'border-green-300 focus:border-green-500'
+                    : phoneValidationStatus === 'invalid'
+                    ? 'border-orange-300 focus:border-orange-500'
+                    : 'border-gray-300'
+                }`}
+              />
+              {isPhoneValidating && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                </div>
+              )}
+              {phoneValidationStatus === 'valid' && !isPhoneValidating && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              )}
+              {phoneValidationStatus === 'invalid' && !isPhoneValidating && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <svg className="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              )}
+            </div>
             {validationErrors.phone_number && (
               <p className="text-red-500 text-xs">{validationErrors.phone_number}</p>
             )}
             {phoneValidationStatus === 'invalid' && !validationErrors.phone_number && (
               <p className="text-orange-500 text-xs">
-                Invalid phone number format. Use (XXX) XXX-XXXX format.
+                Invalid phone number. Please check the number and try again.
               </p>
             )}
             {phoneValidationStatus === 'valid' && !validationErrors.phone_number && (
               <p className="text-green-600 text-xs">
-                Valid phone number format.
+                Valid phone number.
               </p>
             )}
           </div>
@@ -384,22 +436,22 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
         <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">ZIP Code <span className="text-red-500">*</span></label>
-            <input
-              type="text"
-              value={formData.zip_code}
-              onChange={onZipCodeChange}
-              placeholder="ZIP"
-              maxLength={5}
-              className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
-                validationErrors.zip_code 
-                  ? 'border-red-300 focus:border-red-500' 
-                  : zipValidationStatus === 'valid'
-                  ? 'border-green-300 focus:border-green-500'
-                  : zipValidationStatus === 'invalid'
-                  ? 'border-orange-300 focus:border-orange-500'
-                  : 'border-gray-300'
-              }`}
-            />
+              <input
+                type="text"
+                value={formData.zip_code}
+                onChange={onZipCodeChange}
+                placeholder="ZIP"
+                maxLength={5}
+                className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
+                  validationErrors.zip_code 
+                    ? 'border-red-300 focus:border-red-500' 
+                    : zipValidationStatus === 'valid'
+                    ? 'border-green-300 focus:border-green-500'
+                    : zipValidationStatus === 'invalid'
+                    ? 'border-orange-300 focus:border-orange-500'
+                    : 'border-gray-300'
+                }`}
+              />
             {validationErrors.zip_code && (
               <p className="text-red-500 text-xs">{validationErrors.zip_code}</p>
             )}

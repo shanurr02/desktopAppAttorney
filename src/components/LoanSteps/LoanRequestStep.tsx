@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from '../index';
 import { LoanRequestData, LoanRequestValidationErrors } from '../../validation';
+import { Button } from '../index';
 
 interface LoanRequestStepProps {
   formData: LoanRequestData;
