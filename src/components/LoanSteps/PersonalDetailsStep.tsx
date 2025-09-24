@@ -457,7 +457,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
             )}
             {zipValidationStatus === 'invalid' && !validationErrors.zip_code && (
               <p className="text-orange-500 text-xs">
-                Invalid ZIP code format. Use 5-digit format (e.g., 12345).
+                Invalid ZIP code format. 
               </p>
             )}
             {zipValidationStatus === 'valid' && !validationErrors.zip_code && (
