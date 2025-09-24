@@ -1,9 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { z } from 'zod';
 import { Input, Button } from '../index';
 import { PersonalDetailsData, PersonalDetailsValidationErrors, validatePersonalDetails } from '../../validation';
 import DateSelector from '../Dashboard/DateSelector';
-import { useAddressValidation, usePhoneValidation } from '../../hooks';
+import { useAddressValidation } from '../../hooks';
 
 interface PersonalDetailsStepProps {
   formData: PersonalDetailsData;
@@ -48,11 +48,11 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
   onNext, 
   clearFieldError
 }) => {
-  const { validateAddress, isValidating } = useAddressValidation();
-  const { validatePhoneImmediate, isValidating: isPhoneValidating, validationStatus: phoneValidationStatus, resetValidation: resetPhoneValidation, isPhoneAlreadyValidated } = usePhoneValidation();
+  const { validateAddress } = useAddressValidation();
   const [isStateDropdownDisabled, setIsStateDropdownDisabled] = useState(true);
   const [zipValidationStatus, setZipValidationStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
   const [emailError, setEmailError] = useState<string>('');
+  const [phoneValidationStatus, setPhoneValidationStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
 
   // Reset validation status when ZIP code changes
   React.useEffect(() => {
@@ -62,25 +62,84 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
     }
   }, [formData.zip_code]);
 
-  // Track previous phone number to detect actual changes
-  const [previousPhone, setPreviousPhone] = useState(formData.phone_number);
-  
-  // Initialize phone validation status - preserve validation if phone number hasn't changed
-  React.useEffect(() => {
-    // If phone number hasn't changed and was already validated, keep the validation status
-    if (formData.phone_number === previousPhone && isPhoneAlreadyValidated(formData.phone_number)) {
-      // Phone is already validated and hasn't changed, keep the validation status
+  // Debounced phone number validation
+  useEffect(() => {
+    const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
+    
+    if (formData.phone_number.length === 0) {
+      setPhoneValidationStatus('idle');
       return;
     }
-    
-    // Only reset validation if the phone number actually changed and hasn't been validated before
-    if (formData.phone_number !== previousPhone) {
-      setPreviousPhone(formData.phone_number);
-      if (formData.phone_number.length > 0 && !isPhoneAlreadyValidated(formData.phone_number)) {
-        resetPhoneValidation();
+
+    const timeoutId = setTimeout(() => {
+      if (phoneRegex.test(formData.phone_number)) {
+        setPhoneValidationStatus('valid');
+      } else {
+        setPhoneValidationStatus('invalid');
       }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [formData.phone_number]);
+
+  // Debounced ZIP code validation
+  useEffect(() => {
+    const zipRegex = /^\d{5}(-\d{4})?$/;
+    
+    if (formData.zip_code.length === 0) {
+      setZipValidationStatus('idle');
+      setIsStateDropdownDisabled(true);
+      return;
     }
-  }, [formData.phone_number, previousPhone, resetPhoneValidation, isPhoneAlreadyValidated]);
+
+    const timeoutId = setTimeout(async () => {
+      if (zipRegex.test(formData.zip_code)) {
+        try {
+          const addressData = await validateAddress(formData.zip_code);
+          if (addressData && addressData.city && addressData.state) {
+            // Create synthetic events to update city and state
+            const cityEvent = {
+              target: { value: addressData.city }
+            } as React.ChangeEvent<HTMLInputElement>;
+            
+            const stateEvent = {
+              target: { value: addressData.state }
+            } as React.ChangeEvent<HTMLSelectElement>;
+            
+            onCityChange(cityEvent);
+            onStateChange(stateEvent);
+            
+            setIsStateDropdownDisabled(true);
+            setZipValidationStatus('valid');
+          } else {
+            setIsStateDropdownDisabled(false);
+            setZipValidationStatus('invalid');
+          }
+        } catch (error: any) {
+          console.error('Address validation error:', error);
+          setIsStateDropdownDisabled(false);
+          setZipValidationStatus('invalid');
+          
+          // Clear city and state fields when ZIP is invalid
+          const clearCityEvent = {
+            target: { value: '' }
+          } as React.ChangeEvent<HTMLInputElement>;
+          
+          const clearStateEvent = {
+            target: { value: '' }
+          } as React.ChangeEvent<HTMLSelectElement>;
+          
+          onCityChange(clearCityEvent);
+          onStateChange(clearStateEvent);
+        }
+      } else {
+        setZipValidationStatus('invalid');
+        setIsStateDropdownDisabled(false);
+      }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [formData.zip_code, validateAddress, onCityChange, onStateChange]);
 
   // Email validation function
   const validateEmail = useCallback((email: string) => {
@@ -113,72 +172,6 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
     }
   }, [onEmailChange, validateEmail, clearFieldError]); 
 
-  // Handle ZIP code validation button click
-  const handleValidateZipCode = useCallback(async () => {
-    const zipCode = formData.zip_code;
-    
-    if (!zipCode || zipCode.length !== 5) {
-      return;
-    }
-
-    try {
-      const addressData = await validateAddress(zipCode);
-      if (addressData && addressData.city && addressData.state) {
-        // Create synthetic events to update city and state
-        const cityEvent = {
-          target: { value: addressData.city }
-        } as React.ChangeEvent<HTMLInputElement>;
-        
-        const stateEvent = {
-          target: { value: addressData.state }
-        } as React.ChangeEvent<HTMLSelectElement>;
-        
-        onCityChange(cityEvent);
-        onStateChange(stateEvent);
-        
-        // Keep state dropdown disabled since we got valid data
-        setIsStateDropdownDisabled(true);
-        setZipValidationStatus('valid');
-        
-        // Clear any previous validation errors for city and state
-        // Note: You might want to add clearFieldError props to clear validation errors
-      } else {
-        // No valid data returned, enable manual entry
-        setIsStateDropdownDisabled(false);
-        setZipValidationStatus('invalid');
-      }
-    } catch (error: any) {
-      console.error('Address validation error:', error);
-      
-      // Handle different types of errors
-      if (error?.response?.status === 400 || error?.response?.status === 404) {
-        // ZIP code not found or invalid format
-        console.log('Invalid ZIP code - enabling manual entry');
-        setIsStateDropdownDisabled(false);
-        setZipValidationStatus('invalid');
-        
-        // Clear city and state fields when ZIP is invalid
-        const clearCityEvent = {
-          target: { value: '' }
-        } as React.ChangeEvent<HTMLInputElement>;
-        
-        const clearStateEvent = {
-          target: { value: '' }
-        } as React.ChangeEvent<HTMLSelectElement>;
-        
-        onCityChange(clearCityEvent);
-        onStateChange(clearStateEvent);
-      } else if (error?.response?.status === 500) {
-        // Server error - enable dropdown for manual selection
-        setIsStateDropdownDisabled(false);
-        setZipValidationStatus('invalid');
-      } else {
-        // Other errors - enable manual entry as fallback
-        setIsStateDropdownDisabled(false);
-        setZipValidationStatus('invalid');
-      }
-    }
-  }, [formData.zip_code, validateAddress, onCityChange, onStateChange]);
   const stateOptions = [
     { value: "AL", label: "Alabama" },
     { value: "AK", label: "Alaska" },
@@ -248,8 +241,8 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
   
   // Form is valid if schema validation passes AND phone/email are valid
   const isFormValid = validationResult.isValid && 
-    // Phone validation: valid OR already validated OR empty
-    (phoneValidationStatus === 'valid' || isPhoneAlreadyValidated(formData.phone_number) || formData.phone_number.length === 0) &&
+    // Phone validation: valid OR empty
+    (phoneValidationStatus === 'valid' || formData.phone_number.length === 0) &&
     // Email validation: no error OR empty
     (!emailError || formData.email.length === 0);
 
@@ -303,71 +296,33 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Phone <span className="text-red-500">*</span></label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
             <input
               type="text"
               value={formData.phone_number}
               onChange={onPhoneNumberChange}
               placeholder="(XXX) XXX-XXXX"
               maxLength={14}
-                  className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
-                    validationErrors.phone_number 
-                      ? 'border-red-300 focus:border-red-500' 
-                      : phoneValidationStatus === 'valid' || isPhoneAlreadyValidated(formData.phone_number)
-                      ? 'border-green-300 focus:border-green-500'
-                      : phoneValidationStatus === 'invalid'
-                      ? 'border-orange-300 focus:border-orange-500'
-                      : 'border-gray-300'
-                  }`}
-                />
-                {isPhoneValidating && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
-                  </div>
-                )}
-                {(phoneValidationStatus === 'valid' || isPhoneAlreadyValidated(formData.phone_number)) && !isPhoneValidating && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                )}
-                {phoneValidationStatus === 'invalid' && !isPhoneValidating && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <svg className="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-              <Button
-                type="button"
-                variant={isPhoneAlreadyValidated(formData.phone_number) ? "primary" : "outline"}
-                onClick={async () => {
-                  const cleanPhone = formData.phone_number.replace(/\D/g, '');
-                  if (cleanPhone.length === 10) {
-                    await validatePhoneImmediate(formData.phone_number);
-                  }
-                }}
-                disabled={!formData.phone_number || formData.phone_number.replace(/\D/g, '').length !== 10 || isPhoneValidating || isPhoneAlreadyValidated(formData.phone_number)}
-                className="px-4 py-2 text-sm whitespace-nowrap"
-              >
-                {isPhoneValidating ? 'Checking...' : 
-                 isPhoneAlreadyValidated(formData.phone_number) ? '✓ Validated' : 'Check'}
-              </Button>
-            </div>
+              className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
+                validationErrors.phone_number 
+                  ? 'border-red-300 focus:border-red-500' 
+                  : phoneValidationStatus === 'valid'
+                  ? 'border-green-300 focus:border-green-500'
+                  : phoneValidationStatus === 'invalid'
+                  ? 'border-orange-300 focus:border-orange-500'
+                  : 'border-gray-300'
+              }`}
+            />
             {validationErrors.phone_number && (
               <p className="text-red-500 text-xs">{validationErrors.phone_number}</p>
             )}
             {phoneValidationStatus === 'invalid' && !validationErrors.phone_number && (
               <p className="text-orange-500 text-xs">
-                Invalid phone number.
+                Invalid phone number format. Use (XXX) XXX-XXXX format.
               </p>
             )}
-            {(phoneValidationStatus === 'valid' || isPhoneAlreadyValidated(formData.phone_number)) && !validationErrors.phone_number && (
+            {phoneValidationStatus === 'valid' && !validationErrors.phone_number && (
               <p className="text-green-600 text-xs">
-                Valid phone number.
+                Valid phone number format.
               </p>
             )}
           </div>
@@ -429,60 +384,28 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
         <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">ZIP Code <span className="text-red-500">*</span></label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <input
-                  type="text"
-                  value={formData.zip_code}
-                  onChange={onZipCodeChange}
-                  placeholder="ZIP"
-                  maxLength={5}
-                  className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
-                    validationErrors.zip_code 
-                      ? 'border-red-300 focus:border-red-500' 
-                      : zipValidationStatus === 'valid'
-                      ? 'border-green-300 focus:border-green-500'
-                      : zipValidationStatus === 'invalid'
-                      ? 'border-orange-300 focus:border-orange-500'
-                      : 'border-gray-300'
-                  }`}
-                />
-                {isValidating && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
-                  </div>
-                )}
-                {zipValidationStatus === 'valid' && !isValidating && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                )}
-                {zipValidationStatus === 'invalid' && !isValidating && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <svg className="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleValidateZipCode}
-                disabled={!formData.zip_code || formData.zip_code.length !== 5 || isValidating}
-                className="px-4 py-2 text-sm whitespace-nowrap"
-              >
-                {isValidating ? 'Checking...' : 'Check'}
-              </Button>
-            </div>
+            <input
+              type="text"
+              value={formData.zip_code}
+              onChange={onZipCodeChange}
+              placeholder="ZIP"
+              maxLength={5}
+              className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
+                validationErrors.zip_code 
+                  ? 'border-red-300 focus:border-red-500' 
+                  : zipValidationStatus === 'valid'
+                  ? 'border-green-300 focus:border-green-500'
+                  : zipValidationStatus === 'invalid'
+                  ? 'border-orange-300 focus:border-orange-500'
+                  : 'border-gray-300'
+              }`}
+            />
             {validationErrors.zip_code && (
               <p className="text-red-500 text-xs">{validationErrors.zip_code}</p>
             )}
             {zipValidationStatus === 'invalid' && !validationErrors.zip_code && (
               <p className="text-orange-500 text-xs">
-                Invalid ZIP. Correct it or enter city & state.
+                Invalid ZIP code format. Use 5-digit format (e.g., 12345).
               </p>
             )}
             {zipValidationStatus === 'valid' && !validationErrors.zip_code && (
