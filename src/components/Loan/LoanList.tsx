@@ -33,7 +33,6 @@ interface LoanData {
   applicationDate: string;
   attorneyName: string;
   caseType: string;
-  priority: 'low' | 'medium' | 'high';
 }
 
 interface LoanListProps {
@@ -44,7 +43,6 @@ interface LoanListProps {
 const LoanList: React.FC<LoanListProps> = ({ loans }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'date' | 'amount' | 'name'>('date');
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
@@ -102,7 +100,6 @@ const LoanList: React.FC<LoanListProps> = ({ loans }) => {
         applicationDate: formatDate(item.updated_at),
         attorneyName: 'N/A',
         caseType: 'N/A',
-        priority: 'medium',
       };
       return normalized;
     });
@@ -122,9 +119,8 @@ const LoanList: React.FC<LoanListProps> = ({ loans }) => {
         loan.attorneyName.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesStatus = statusFilter === 'all' || loan.status === statusFilter;
-      const matchesPriority = priorityFilter === 'all' || loan.priority === priorityFilter;
       
-      return matchesSearch && matchesStatus && matchesPriority;
+      return matchesSearch && matchesStatus;
     });
 
     // Sort loans
@@ -141,7 +137,7 @@ const LoanList: React.FC<LoanListProps> = ({ loans }) => {
     });
 
     return filtered;
-  }, [loanData, searchTerm, statusFilter, priorityFilter, sortBy]);
+  }, [loanData, searchTerm, statusFilter, sortBy]);
 
   const toggleCardExpansion = (loanId: string) => {
     // If clicking on the currently expanded card, close it
@@ -276,20 +272,20 @@ const LoanList: React.FC<LoanListProps> = ({ loans }) => {
         {/* Stats Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           <DashboardCard
+            title="Application Started"
+            amount={`${statusCounts['Application Started'] || 0}`}
+          />
+          <DashboardCard
+            title="Client Invited"
+            amount={`${statusCounts['Client Invited'] || 0}`}
+          />
+          <DashboardCard
             title="Approved"
-            amount={`${statusCounts.approved || 0}`}
+            amount={`${statusCounts.Approved || 0}`}
           />
           <DashboardCard
-            title="Pending"
-            amount={`${statusCounts.pending || 0}`}
-          />
-          <DashboardCard
-            title="Funded"
-            amount={`${statusCounts.funded || 0}`}
-          />
-          <DashboardCard
-            title="Rejected"
-            amount={`${statusCounts.rejected || 0}`}
+            title="Error"
+            amount={`${statusCounts.Error || 0}`}
           />
         </div>
 
@@ -320,25 +316,10 @@ const LoanList: React.FC<LoanListProps> = ({ loans }) => {
                 className="w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 bg-white text-gray-500 border-gray-300"
               >
                 <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="funded">Funded</option>
-                <option value="rejected">Rejected</option>
-              </select>
-            </div>
-
-            {/* Priority Filter */}
-            <div className="lg:w-48">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-              <select
-                value={priorityFilter}
-                onChange={(e) => setPriorityFilter(e.target.value)}
-                className="w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 bg-white text-gray-500 border-gray-300"
-              >
-                <option value="all">All Priority</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
+                <option value="Application Started">Application Started</option>
+                <option value="Client Invited">Client Invited</option>
+                <option value="Approved">Approved</option>
+                <option value="Error">Error</option>
               </select>
             </div>
 

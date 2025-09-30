@@ -19,7 +19,7 @@ export const useApplications = () => {
   });
 
   // Transform API data to match our LoanData interface
-  const transformedApplications = applicationsQuery.data?.map((app, index) => ({
+  const transformedApplications: any[] = applicationsQuery.data?.map((app, index) => ({
     id: app.application_id, // Use application_id as the unique identifier
     application_id: app.application_id, // Include application_id for API calls
     firstname: app.first_name,
@@ -45,7 +45,6 @@ export const useApplications = () => {
     applicationDate: formatDate(app.updated_at),
     attorneyName: 'N/A',
     caseType: 'N/A',
-    priority: 'medium' as 'low' | 'medium' | 'high',
   })) || [];
 
   // Refresh applications function

@@ -32,7 +32,6 @@ interface LoanData {
   applicationDate: string;
   attorneyName: string;
   caseType: string;
-  priority: 'low' | 'medium' | 'high';
 }
 
 interface LoanCardProps {
