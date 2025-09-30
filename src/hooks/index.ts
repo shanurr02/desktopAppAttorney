@@ -1,7 +1,8 @@
 export { useAuth } from './useAuth';
 export { useFormValidation } from './useFormValidation';
 export { useLoanForm } from './useLoanForm';
-export { useAddressValidation } from './useAddressValidation';
+export { useAddressValidation } from './useAddress';
 export { useApplications } from './useApplications';
-export { usePhoneValidation } from './usePhoneValidation';
+export { usePhoneValidation } from './usePhone';
 export { useApplicationDetails } from './useApplicationDetails';
+export { useDashboard } from './useDashboard';

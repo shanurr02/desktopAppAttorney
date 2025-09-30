@@ -7,47 +7,15 @@ import DashboardCard from "../components/Dashboard/DashboardCard";
 import NavbarDashboard from "../components/Dashboard/NavbarDashboard";
 import RecentClient from "../components/Dashboard/RecentClient";
 import RevenueChart from "../components/Dashboard/RevenueChart";
+import { useDashboard } from "../hooks";
 
-// Define type for client
+// Define type for client (matching the RecentClient component interface)
 interface Client {
   name: string;
   status: "Client Invited" | "Application Started" | "Approved";
   timeAgo: string;
   avatar: string;
 }
-
-const sampleClients: Client[] = [
-  { 
-    name: "Aliah Lane", 
-    status: "Client Invited", 
-    timeAgo: "2 hours ago",
-    avatar: profileImage
-  },
-  { 
-    name: "Lana Steiner", 
-    status: "Client Invited", 
-    timeAgo: "2 hours ago",
-    avatar: profileImage
-  },
-  { 
-    name: "Koray Okumus", 
-    status: "Application Started", 
-    timeAgo: "2 hours ago",
-    avatar: profileImage
-  },
-  { 
-    name: "Joshua Wilson", 
-    status: "Approved", 
-    timeAgo: "2 hours ago",
-    avatar: profileImage
-  },
-  { 
-    name: "Joshua Wilson", 
-    status: "Approved", 
-    timeAgo: "2 hours ago",
-    avatar: profileImage
-  },
-];
 
 const Dashboard: React.FC = () => {
   const [selectedDateRange, setSelectedDateRange] = useState<{
@@ -56,6 +24,40 @@ const Dashboard: React.FC = () => {
   }>({ startDate: null, endDate: null });
 
   const [activeFilter, setActiveFilter] = useState<"30" | "90" | "custom">("30");
+
+  // Helper function to map API status to component status
+  const mapApiStatusToComponentStatus = (apiStatus: string): Client['status'] => {
+    switch (apiStatus.toLowerCase()) {
+      case 'client invited':
+        return 'Client Invited';
+      case 'application started':
+        return 'Application Started';
+      case 'approved':
+      case 'funded':
+        return 'Approved';
+      default:
+        return 'Application Started'; // Default fallback
+    }
+  };
+
+  // Use dashboard hook to fetch real data
+  const {
+    activeClients,
+    recentClients,
+    isLoading,
+    isRefreshing,
+    isError,
+    error,
+    refreshDashboard,
+  } = useDashboard();
+
+  // Transform recent clients data to match the Client interface
+  const transformedClients: Client[] = recentClients.map((client) => ({
+    name: client.fullName,
+    status: mapApiStatusToComponentStatus(client.status),
+    timeAgo: client.formattedDate,
+    avatar: profileImage, // Using default avatar for now
+  }));
 
   const handleDateSelect = (startDate: Date | null, endDate: Date | null) => {
     setSelectedDateRange({ startDate, endDate });
@@ -71,31 +73,70 @@ const Dashboard: React.FC = () => {
     console.log("Filter changed to:", filter);
   };
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="h-[98%] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading dashboard data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (isError) {
+    return (
+      <div className="h-[98%] flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Failed to load dashboard</h2>
+          <p className="text-gray-600 mb-4">{error?.message || 'An error occurred while loading dashboard data'}</p>
+          <button 
+            onClick={refreshDashboard}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className=" h-[98%] ">
+    <div className="h-[98%]">
       {/* 🔹 Top Navbar */}
       <NavbarDashboard />
 
       {/* 🔹 Secondary Navbar (Business Activity) */}
-      <div className="flex items-center justify-between py-4  bg-gray-100">
-      {/* Left */}
-      <Title text="Business Activity" />
+      <div className="flex items-center justify-between py-4 bg-gray-100">
+        {/* Left */}
+        <Title text="Business Activity" />
 
-      {/* Right */}
-      <div className="flex items-center gap-2">
-        <FilterButton 
-          label="30 Days" 
-          isActive={activeFilter === "30"} 
-          onClick={() => handleFilterClick("30")}
-        />
-        <FilterButton 
-          label="90 Days" 
-          isActive={activeFilter === "90"} 
-          onClick={() => handleFilterClick("90")}
-        />
-        <DateSelector onDateSelect={handleDateSelect} />
+        {/* Right */}
+        <div className="flex items-center gap-2">
+          <FilterButton 
+            label="30 Days" 
+            isActive={activeFilter === "30"} 
+            onClick={() => handleFilterClick("30")}
+          />
+          <FilterButton 
+            label="90 Days" 
+            isActive={activeFilter === "90"} 
+            onClick={() => handleFilterClick("90")}
+          />
+          <DateSelector onDateSelect={handleDateSelect} />
+          {/* Refresh button */}
+          <button
+            onClick={refreshDashboard}
+            disabled={isRefreshing}
+            className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isRefreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
       </div>
-    </div>
 
 
       <div className="space-y-3"> 
@@ -118,16 +159,16 @@ const Dashboard: React.FC = () => {
           textColor="text-red-700"
         />
         <DashboardCard
-          title="Active Application"
-          amount="32"
+          title="Active Clients"
+          amount={activeClients?.active_clients?.toString() || "0"}
           percentage="12%"
           icon="up"
           bgColor="bg-green-100"
           textColor="text-green-700"
         />
         <DashboardCard
-          title="Funded Cases"
-          amount="12"
+          title="Applications Started"
+          amount={activeClients?.application_started?.toString() || "0"}
           percentage="2%"
           icon="down"
           bgColor="bg-red-100"
@@ -143,7 +184,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Recent Clients takes 1/3 width */}
-        <RecentClient clients={sampleClients} />
+        <RecentClient clients={transformedClients} />
       </div>
       </div>
     </div>

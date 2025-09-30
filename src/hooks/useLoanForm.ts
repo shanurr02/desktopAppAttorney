@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { loanAPI, LoanApplicationRequest, LoanApplicationResponse, ProcessApplicationResponse } from '../api/loan';
+import { useCallback, useState } from 'react';
+import { loanAPI, LoanApplicationRequest } from '../api/loan';
+import { LoanFormData, loanSchema, LoanValidationErrors } from '../validation/loanSchema';
 import { useFormValidation } from './useFormValidation';
-import { loanSchema, LoanValidationErrors, LoanFormData } from '../validation/loanSchema';
 
 /**
  * Custom hook for loan application form management

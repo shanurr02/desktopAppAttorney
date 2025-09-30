@@ -1,6 +1,5 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import CustomTitleBar from '../components/CustomTitleBar';
 
 // Layout component using Outlet
 const Layout: React.FC = () => {

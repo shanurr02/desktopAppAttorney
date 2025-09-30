@@ -76,7 +76,7 @@ export interface User {
   userType?: 'Client' | 'Attorney'; // Computed field for convenience
 }
 
-// API Functions
+// API Functions  
 export const authAPI = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
     const response = await apiClient.post('/api/login/', credentials);
