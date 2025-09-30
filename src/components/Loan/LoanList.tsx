@@ -29,7 +29,7 @@ interface LoanData {
   monthly_income: string;
   months_at_employer: string;
   employer_name: string;
-  status: 'pending' | 'approved' | 'rejected' | 'funded';
+  status: string; // show raw status text from API/UI
   applicationDate: string;
   attorneyName: string;
   caseType: string;
@@ -50,9 +50,66 @@ const LoanList: React.FC<LoanListProps> = ({ loans }) => {
 
   // Fetch applications from API
   const { applications, isLoading, isError, error, refetch } = useApplications();
-  
-  // Use API data if available, otherwise fall back to prop data
-  const loanData = applications.length > 0 ? applications : (loans || []);
+
+  // Helper: map API status strings to UI statuses
+  const mapApiStatusToLoanStatus = (apiStatus: string): string => apiStatus || 'N/A';
+
+  // Helper: format ISO date to MM/DD/YYYY
+  const formatDate = (dateString?: string): string => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    } catch {
+      return 'N/A';
+    }
+  };
+
+  // Normalize prop-provided loans if they come in raw API shape (snake_case)
+  const normalizedPropLoans: LoanData[] = useMemo(() => {
+    if (!loans) return [];
+    return loans.map((item: any) => {
+      // Detect raw API shape by presence of first_name
+      const isRawApi = typeof item.first_name === 'string' || typeof item.updated_at === 'string';
+      if (!isRawApi) {
+        // Assume already normalized LoanData
+        return item as LoanData;
+      }
+
+      const normalized: LoanData = {
+        id: item.application_id,
+        application_id: item.application_id,
+        firstname: item.first_name,
+        last_name: item.last_name,
+        email: item.email,
+        phone_number: item.phone_number,
+        dob: 'N/A',
+        ssn: 'N/A',
+        street_address: 'N/A',
+        city: 'N/A',
+        state: 'N/A',
+        zip_code: 'N/A',
+        months_at_address: 'N/A',
+        monthly_rent: 'N/A',
+        employer_name: 'N/A',
+        months_at_employer: 'N/A',
+        income_source: 'N/A',
+        pay_frequency: 'N/A',
+        monthly_income: 'N/A',
+        loan_amount: item.loan_amount,
+        residence_type: 'N/A',
+        status: mapApiStatusToLoanStatus(item.status),
+        applicationDate: formatDate(item.updated_at),
+        attorneyName: 'N/A',
+        caseType: 'N/A',
+        priority: 'medium',
+      };
+      return normalized;
+    });
+  }, [loans]);
+
+  // Use API data if available, otherwise fall back to normalized prop data
+  const loanData = applications.length > 0 ? applications : normalizedPropLoans;
 
   // Filter and sort loans
   const filteredAndSortedLoans = useMemo(() => {

@@ -8,6 +8,7 @@ import NavbarDashboard from "../components/Dashboard/NavbarDashboard";
 import RecentClient from "../components/Dashboard/RecentClient";
 import RevenueChart from "../components/Dashboard/RevenueChart";
 import { useDashboard } from "../hooks";
+import { LoaderCircle } from "lucide-react";
 
 // Define type for client (matching the RecentClient component interface)
 interface Client {
@@ -76,10 +77,12 @@ const Dashboard: React.FC = () => {
   // Show loading state
   if (isLoading) {
     return (
-      <div className="h-[98%] flex items-center justify-center">
+      <div className="min-h-full flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard data...</p>
+          {/* <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div> */}
+          <LoaderCircle className="animate-spin h-12 w-12 text-green-600 mx-auto mb-4" />
+          <p className="text-gray-600 text-lg">Loading dashboard data...</p>
+          <p className="text-gray-400 text-sm mt-2">Please wait while we fetch your data</p>
         </div>
       </div>
     );

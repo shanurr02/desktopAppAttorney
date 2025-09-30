@@ -28,7 +28,7 @@ interface LoanData {
   monthly_income: string;
   months_at_employer: string;
   employer_name: string;
-  status: 'pending' | 'approved' | 'rejected' | 'funded';
+  status: string;
   applicationDate: string;
   attorneyName: string;
   caseType: string;
@@ -51,14 +51,22 @@ const LoanCard: React.FC<LoanCardProps> = ({ loan, isExpanded, onToggleExpanded 
     getResidenceTypeLabel 
   } = useApplicationDetails(isExpanded ? loan.application_id : null);
 
+  // Custom status color mapping for specific statuses
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'approved': return 'bg-green-100 text-green-700';
-      case 'pending': return 'bg-yellow-100 text-yellow-700';
-      case 'rejected': return 'bg-red-100 text-red-700';
-      case 'funded': return 'bg-blue-100 text-blue-700';
-      default: return 'bg-gray-100 text-gray-700';
-    }
+    const normalized = (status || '').toLowerCase().trim();
+
+    // Explicit status matches
+    if (normalized === 'application started') return 'bg-green-100 text-green-700';
+    if (normalized === 'client invited') return 'bg-yellow-100 text-yellow-700';
+    if (normalized === 'error') return 'bg-red-100 text-red-700';
+
+    // Fallbacks for other common statuses
+    if (normalized.includes('approve')) return 'bg-green-100 text-green-700';
+    if (normalized.includes('fund')) return 'bg-blue-100 text-blue-700';
+    if (normalized.includes('reject') || normalized.includes('fail')) return 'bg-red-100 text-red-700';
+    if (normalized.includes('pending') || normalized.includes('start') || normalized.includes('invite')) return 'bg-yellow-100 text-yellow-700';
+
+    return 'bg-gray-100 text-gray-700';
   };
 
   
@@ -75,7 +83,7 @@ const LoanCard: React.FC<LoanCardProps> = ({ loan, isExpanded, onToggleExpanded 
                 {loan.firstname} {loan.last_name}
               </h3>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(loan.status)}`}>
-                {loan.status.charAt(0).toUpperCase() + loan.status.slice(1)}
+                {loan.status}
               </span>
             </div>
             

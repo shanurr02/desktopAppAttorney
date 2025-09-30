@@ -41,7 +41,7 @@ export const useApplications = () => {
     monthly_income: 'N/A',
     loan_amount: app.loan_amount,
     residence_type: 'N/A',
-    status: mapApiStatusToLoanStatus(app.status),
+    status: app.status,
     applicationDate: formatDate(app.updated_at),
     attorneyName: 'N/A',
     caseType: 'N/A',
@@ -78,22 +78,7 @@ export const useApplications = () => {
 };
 
 // Helper function to map API status to our loan status
-const mapApiStatusToLoanStatus = (apiStatus: string): 'pending' | 'approved' | 'rejected' | 'funded' => {
-  switch (apiStatus.toLowerCase()) {
-    case 'application started':
-      return 'pending';
-    case 'client invited':
-      return 'pending';
-    case 'error':
-      return 'rejected';
-    case 'approved':
-      return 'approved';
-    case 'funded':
-      return 'funded';
-    default:
-      return 'pending';
-  }
-};
+// Status is now passed through as text; keep color/labeling logic in UI components if needed.
 
 // Helper function to format date
 const formatDate = (dateString: string): string => {
