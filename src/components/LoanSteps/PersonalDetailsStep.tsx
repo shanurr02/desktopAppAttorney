@@ -490,9 +490,6 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               City <span className="text-red-500">*</span>
-              {isStateDropdownDisabled && (
-                <span className="text-xs text-gray-400 ml-1">(Auto-filled)</span>
-              )}
             </label>
             <input
               type="text"
@@ -500,11 +497,7 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
               onChange={onCityChange}
               placeholder="City"
               // disabled={isStateDropdownDisabled}
-              className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
-                isStateDropdownDisabled 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-white text-gray-700'
-              } ${validationErrors.city ? 'border-red-300 focus:border-red-500' : 'border-gray-300'}`}
+              className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 bg-white text-gray-700 ${validationErrors.city ? 'border-red-300 focus:border-red-500' : 'border-gray-300'}`}
             />
             {validationErrors.city && (
               <p className="text-red-500 text-xs">{validationErrors.city}</p>
@@ -519,19 +512,11 @@ const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
            <div>
              <label className="block text-sm font-medium text-gray-700 mb-1">
                State <span className="text-red-500">*</span>
-               {isStateDropdownDisabled && (
-                 <span className="text-xs text-gray-400 ml-1">(Auto-filled)</span>
-               )}
              </label>
              <select
                value={formData.state}
                onChange={onStateChange}
-              //  dis abled={isStateDropdownDisabled}
-               className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 ${
-                 isStateDropdownDisabled 
-                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                   : 'bg-white text-gray-500'
-               } ${validationErrors.state ? 'border-red-300 focus:border-red-500' : 'border-gray-300'}`}
+               className={`w-full px-3 py-2 border max-h-[40px] rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 bg-white text-gray-500 ${validationErrors.state ? 'border-red-300 focus:border-red-500' : 'border-gray-300'}`}
              >
                <option value="">State</option>
                {stateOptions.map((state) => (

@@ -128,13 +128,13 @@ const Dashboard: React.FC = () => {
           />
           <DateSelector onDateSelect={handleDateSelect} />
           {/* Refresh button */}
-          <button
+          {/* <button
             onClick={refreshDashboard}
             disabled={isRefreshing}
             className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isRefreshing ? 'Refreshing...' : 'Refresh'}
-          </button>
+          </button> */}
         </div>
       </div>
 

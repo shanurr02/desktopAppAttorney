@@ -344,14 +344,6 @@ const DateSelector: React.FC<DateSelectorProps> = ({
                   )}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={goToCurrentMonth}
-                  className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 hover:bg-gray-100 rounded transition-colors duration-150"
-                  title="Go to current month"
-                >
-                  Today
-                </button>
               </div>
               
               <button

@@ -61,14 +61,7 @@ const LoanCard: React.FC<LoanCardProps> = ({ loan, isExpanded, onToggleExpanded 
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-700';
-      case 'medium': return 'bg-yellow-100 text-yellow-700';
-      case 'low': return 'bg-green-100 text-green-700';
-      default: return 'bg-gray-100 text-gray-700';
-    }
-  };
+  
 
   return (
     <div className="rounded-md border bg-white text-card-foreground shadow-sm hover:shadow-md transition-shadow">
@@ -83,9 +76,6 @@ const LoanCard: React.FC<LoanCardProps> = ({ loan, isExpanded, onToggleExpanded 
               </h3>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(loan.status)}`}>
                 {loan.status.charAt(0).toUpperCase() + loan.status.slice(1)}
-              </span>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(loan.priority)}`}>
-                {loan.priority.charAt(0).toUpperCase() + loan.priority.slice(1)} Priority
               </span>
             </div>
             
@@ -212,7 +202,6 @@ const LoanCard: React.FC<LoanCardProps> = ({ loan, isExpanded, onToggleExpanded 
                 <div><span className="text-gray-500">Residence:</span> <span>{loan.residence_type}</span></div>
                 <div><span className="text-gray-500">Attorney:</span> <span>{loan.attorneyName}</span></div>
                 <div><span className="text-gray-500">Case Type:</span> <span>{loan.caseType}</span></div>
-                <div><span className="text-gray-500">Priority:</span> <span className={`px-1 py-0.5 rounded text-xs ${getPriorityColor(loan.priority)}`}>{loan.priority}</span></div>
               </div>
             </div>
           )}

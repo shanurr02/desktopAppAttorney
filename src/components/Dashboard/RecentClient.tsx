@@ -23,15 +23,13 @@ const RecentClient: React.FC<RecentClientProps> = ({ clients }) => {
   };
 
   return (
-    <div className="bg-gray-50 border rounded-md shadow p-4">
+    <div className="bg-gray-50 border rounded-md shadow p-4 ">
       <div className="flex justify-between items-center mb-3">
         <h2 className="text-sm font-semibold text-gray-800">Recent clients</h2>
         <button className={`py-2 px-4 rounded-md text-sm font-medium transition bg-gray-100 hover:bg-slate-200 text-gray-900 `} >View all</button>
-
-   
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 overflow-y-auto max-h-64 md:max-h-80 lg:max-h-[400px] pr-1">
         {clients.map((client, idx) => (
           <div key={idx} className="flex items-top space-x-3 border-b-2 border-gray-100 pb-4">
             <img

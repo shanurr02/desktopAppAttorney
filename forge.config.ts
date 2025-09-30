@@ -35,7 +35,7 @@ const config: ForgeConfig = {
     new AutoUnpackNativesPlugin({}),
     new WebpackPlugin({
       mainConfig,
-      devContentSecurityPolicy: "connect-src 'self' http://dev.casefunders.com https://dev.casefunders.com http://localhost:* https://localhost:* 'unsafe-eval'",
+      devContentSecurityPolicy: "connect-src 'self' http://dev.casefunders.com https://dev.casefunders.com http://localhost:* https://localhost:* https://client.crisp.chat wss://client.relay.crisp.chat 'unsafe-eval'",
       renderer: {
         config: rendererConfig,
         entryPoints: [

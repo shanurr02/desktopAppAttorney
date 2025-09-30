@@ -28,19 +28,22 @@ const EmploymentDetailsStep: React.FC<EmploymentDetailsStepProps> = ({
   onNext
 }) => {
   const incomeSourceOptions = [
-    { value: "1", label: "Employment" },
-    { value: "2", label: "Self-Employed" },
-    { value: "3", label: "Unemployment Benefits" },
-    { value: "4", label: "Social Security" },
-    { value: "5", label: "Disability Benefits" },
-    { value: "6", label: "Other" },
+    { value: "1", label: "Employed" },
+    { value: "2", label: "Social Security" },
+    { value: "3", label: "Pension" },
+    { value: "4", label: "Disability" },
+    { value: "5", label: "Self Employed" },
+    { value: "6", label: "Student" },
+    { value: "7", label: "Unemployed" },
   ];
 
   const payFrequencyOptions = [
     { value: "1", label: "Weekly" },
-    { value: "2", label: "Bi-Weekly" },
-    { value: "3", label: "Monthly" },
-    { value: "4", label: "Other" },
+    { value: "2", label: "Every two weeks" },
+    { value: "3", label: "Twice a month" },
+    { value: "4", label: "Monthly" },
+    { value: "5", label: "4 Weekly" },
+    { value: "6", label: "Other" },
   ];
 
   // Validate form data using the schema
