@@ -6,6 +6,7 @@ import Loans from "./Loans";
 import ComingSoon from "./ComingSoon";
 import CustomTitleBar from "../components/CustomTitleBar";
 import InvitedClient from "./InvitedClient";
+import ReferColleague from "./ReferColleague";
 
 const LayoutDashboard: React.FC = () => {
   const [activePage, setActivePage] = useState("home");
@@ -20,6 +21,8 @@ const LayoutDashboard: React.FC = () => {
         return <Loans />;
       case "invite":
         return <InvitedClient />;
+      case "refer":
+        return <ReferColleague />;
       case "send":
       case "compass":
       case "chart":

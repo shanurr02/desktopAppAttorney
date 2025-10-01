@@ -11,7 +11,8 @@ import {
   Settings,
   User,
   File,
-  SquareMenu
+  SquareMenu,
+  Users
 } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -30,6 +31,7 @@ const menuItems = [
   { id: "finance", label: "Collect Payment", icon: DollarSign, isHamburger: false },
   { id: "layers", label: "Start Application", icon: Layers, isHamburger: false },
   { id: "invite", label: "Invite Client", icon: Send, isHamburger: false },
+  { id: "refer", label: "Refer Colleague", icon: Users, isHamburger: false },
   // { id: "timer", label: "Payment Plans", icon: ChartPie, isHamburger: false },
   { id: "compass", label: "Transactions", icon: ArrowLeftRight, isHamburger: false },
   // { id: "refresh", label: "Refund", icon: RotateCcw, isHamburger: false },

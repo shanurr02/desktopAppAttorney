@@ -172,7 +172,6 @@ const InviteClientApplication: React.FC<InviteClientApplicationProps> = ({
           <textarea
             value={formData.custom_email_text}
             onChange={(e) => onChange('custom_email_text', e.target.value)}
-            placeholder="For your convenience, our firm accepts secure, online payments through LawPay. Thank you for the courtesy of your prompt payment."
             rows={4}
             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-0 focus-within:ring-0 bg-white text-gray-700 resize-vertical ${
               validationErrors.custom_email_text ? 'border-red-300 focus:border-red-500' : 'border-gray-300'
