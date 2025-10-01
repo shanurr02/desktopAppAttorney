@@ -31,12 +31,16 @@ const menuItems = [
   { id: "finance", label: "Collect Payment", icon: DollarSign, isHamburger: false },
   { id: "layers", label: "Start Application", icon: Layers, isHamburger: false },
   { id: "invite", label: "Invite Client", icon: Send, isHamburger: false },
-  { id: "refer", label: "Refer Colleague", icon: Users, isHamburger: false },
   // { id: "timer", label: "Payment Plans", icon: ChartPie, isHamburger: false },
   { id: "compass", label: "Transactions", icon: ArrowLeftRight, isHamburger: false },
   // { id: "refresh", label: "Refund", icon: RotateCcw, isHamburger: false },
   { id: "chart", label: "Reports", icon: BarChart3, isHamburger: false },
   { id: "all", label: "All Applications", icon: SquareMenu  , isHamburger: false },
+] as const;
+
+// Bottom menu items (above profile)
+const bottomMenuItems = [
+  { id: "refer", label: "Refer Colleague", icon: Users, isHamburger: false },
 ] as const;
 
 const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
@@ -168,6 +172,36 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
           })}
         </nav>
 
+        {/* Bottom menu items (above profile) */}
+        <div className="p-2 border-t border-gray-700/30">
+          {bottomMenuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activePage === item.id;
+
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleMenuSelect(item.id)}
+                data-tooltip-id={`tooltip-${item.id}`}
+                data-tooltip-content={!expanded ? item.label : ""}
+                className={`w-full flex items-center ${expanded ? "justify-start gap-2" : "justify-center"} py-2 px-4 rounded-md text-sm font-medium transition-all duration-150 ease-out
+                ${isActive
+                    ? "bg-green-600/90 text-white shadow-md"
+                    : "text-gray-300 hover:bg-[#161717]/50 hover:text-white"
+                  }`}
+              >
+                <Icon size={20} className="flex-shrink-0" />
+                <div
+                  className={`overflow-hidden transition-all duration-200 ease-out ${expanded ? "w-auto opacity-100" : "w-0 opacity-0"
+                    }`}
+                >
+                  <span className="text-sm whitespace-nowrap select-none">{item.label}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
         {/* Footer with profile and settings */}
         <div className={`py-2 border-t border-gray-700/30 bg-[#161717]/40 relative`} ref={profileMenuRef}>
           {/* Expanded state footer */}
@@ -278,6 +312,26 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
 
       {/* Tooltip components */}
       {menuItems.map((item) => (
+        <Tooltip
+          key={`tooltip-${item.id}`}
+          id={`tooltip-${item.id}`}
+          place="right"
+          style={{
+            backgroundColor: '#161717',
+            color: 'white',
+            borderRadius: '6px',
+            padding: '8px 12px',
+            fontSize: '14px',
+            fontWeight: '500',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            border: '1px solid rgba(75, 85, 99, 0.3)',
+            zIndex: 9999
+          }}
+          opacity={0.95}
+        />
+      ))}
+      
+      {bottomMenuItems.map((item) => (
         <Tooltip
           key={`tooltip-${item.id}`}
           id={`tooltip-${item.id}`}

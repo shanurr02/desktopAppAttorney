@@ -59,7 +59,7 @@ const ReferColleagueForm: React.FC<ReferColleagueFormProps> = ({
       <form className="flex-1 w-full">
         <div className="flex-1 w-full">
           {/* Colleague Information - Responsive columns */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Colleague First Name <span className="text-red-500">*</span>
@@ -107,10 +107,6 @@ const ReferColleagueForm: React.FC<ReferColleagueFormProps> = ({
                 <p className="text-red-500 text-xs">{validationErrors.colleague_firm_name}</p>
               )}
             </div>
-          </div>
-
-          {/* Contact Information - Responsive columns */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Colleague Email <span className="text-red-500">*</span>
@@ -126,6 +122,11 @@ const ReferColleagueForm: React.FC<ReferColleagueFormProps> = ({
                 <p className="text-red-500 text-xs">{validationErrors.colleague_email}</p>
               )}
             </div>
+          </div>
+
+          {/* Contact Information - Responsive columns */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+          
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -165,10 +166,6 @@ const ReferColleagueForm: React.FC<ReferColleagueFormProps> = ({
                 <p className="text-red-500 text-xs">{validationErrors.colleague_phone}</p>
               )}
             </div>
-          </div>
-
-          {/* Your Information - Responsive columns */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Your Name <span className="text-red-500">*</span>
@@ -201,7 +198,6 @@ const ReferColleagueForm: React.FC<ReferColleagueFormProps> = ({
               )}
             </div>
           </div>
-
           {/* Message */}
           <div className="mb-3">
             <label className="block text-sm font-medium text-gray-700 mb-1">
