@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import iconImage from '../assets/logo/icon.png';
+import { LoaderCircle } from 'lucide-react';
 
 const Welcome: React.FC = () => {
   const navigate = useNavigate();
@@ -29,8 +30,9 @@ const Welcome: React.FC = () => {
 
         {/* Loader */}
         <div className="flex justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+        <LoaderCircle className="animate-spin h-12 w-12 text-green-600 mx-auto mb-4" />
         </div>
+     
       </div>
     </div>
   );

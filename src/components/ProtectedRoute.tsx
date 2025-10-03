@@ -14,7 +14,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   allowedGroups,
   fallback 
 }) => {
-  const { isLoggedIn, isLoading, currentUser } = useAuth();
+  const { isLoggedIn, isLoading, currentUser, logout } = useAuth();
   const location = useLocation();
 
   // Show loading state while checking authentication
@@ -38,18 +38,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (allowedGroups && currentUser) {
     const userGroup = currentUser.group;
     if (!allowedGroups.includes(userGroup)) {
-      // User doesn't have required group access
-      if (fallback) {
-        return <>{fallback}</>;
-      }
-      return (
-        <div className="h-screen flex items-center justify-center bg-gray-100">
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">Access Denied</h2>
-            <p className="text-gray-600">You don't have permission to access this page.</p>
-          </div>
-        </div>
-      );
+      // User doesn't have required group access - logout automatically
+      logout();
+      return <Navigate to="/app/login" state={{ from: location }} replace />;
     }
   }
 

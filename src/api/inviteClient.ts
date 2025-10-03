@@ -5,7 +5,6 @@ export interface InviteClientRequest {
   client_email: string;
   first_name: string;
   last_name: string;
-  attorney_email: string;
   loan_amount: string;
   reference: string;
   subject_line: string;

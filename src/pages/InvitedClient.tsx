@@ -25,7 +25,6 @@ const InvitedClient: React.FC = () => {
     const [client_email, setClient_email] = useState("");
     const [first_name, setFirst_name] = useState("");
     const [last_name, setLast_name] = useState("");
-    const [attorney_email, setAttorney_email] = useState("");
     const [loan_amount, setLoan_amount] = useState("");
     const [reference, setReference] = useState("");
     const [subject_line, setSubject_line] = useState("Request for Payment");
@@ -41,20 +40,18 @@ const InvitedClient: React.FC = () => {
         client_email,
         first_name,
         last_name,
-        attorney_email,
         loan_amount,
         reference,
         subject_line,
         custom_email_text,
         selected_file,
-    }), [client_email, first_name, last_name, attorney_email, loan_amount, reference, subject_line, custom_email_text, selected_file]);
+    }), [client_email, first_name, last_name, loan_amount, reference, subject_line, custom_email_text, selected_file]);
 
     // Reset form function
     const resetForm = () => {
         setClient_email("");
         setFirst_name("");
         setLast_name("");
-        setAttorney_email("");
         setLoan_amount("");
         setReference("");
         setSubject_line("Request for Payment");
@@ -92,7 +89,10 @@ const InvitedClient: React.FC = () => {
             
             console.log("Invite sent successfully:", result);
             setSuccessMessage(`Client invite sent successfully! ${result.payment_link ? 'Payment link generated.' : ''}`);
-            resetForm();
+            // Delay form reset to show success message first
+            setTimeout(() => {
+                resetForm();
+            }, 3000);
         } catch (err: any) {
             console.error("Invite submission error:", err);
             
@@ -127,9 +127,6 @@ const InvitedClient: React.FC = () => {
                 break;
             case 'last_name':
                 setLast_name(value);
-                break;
-            case 'attorney_email':
-                setAttorney_email(value);
                 break;
             case 'loan_amount':
                 setLoan_amount(value);

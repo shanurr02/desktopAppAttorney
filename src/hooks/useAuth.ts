@@ -41,20 +41,25 @@ export const useAuth = () => {
   const loginMutation = useMutation({
     mutationFn: authAPI.login,
     onSuccess: (data) => {
-      // Transform user data to include computed fields
+      // Some backends return `user_group` instead of `group`.
+      const incomingUser: any = data.user as any;
+      const normalizedGroup = (incomingUser.user_group || 'client') as 'attorney' | 'client';
+
+      // Transform user data to include computed fields and normalized group
       const transformedUser = {
-        ...data.user,
-        name: `${data.user.first_name} ${data.user.last_name}`,
-        userType: data.user.group === 'attorney' ? 'Attorney' : 'Client',
+        ...incomingUser,
+        group: normalizedGroup,
+        name: `${incomingUser.first_name} ${incomingUser.last_name || ''}`.trim(),
+        userType: normalizedGroup === 'attorney' ? 'Attorney' : 'Client',
       };
-      
+
       // Store token and user data
       localStorage.setItem('auth_token', data.token);
       localStorage.setItem('user_data', JSON.stringify(transformedUser));
-      
+
       // Update React Query cache
       queryClient.setQueryData(['currentUser'], transformedUser);
-      
+
       // Invalidate and refetch user data
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
     },

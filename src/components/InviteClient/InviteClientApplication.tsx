@@ -89,28 +89,7 @@ const InviteClientApplication: React.FC<InviteClientApplicationProps> = ({
               <p className="text-red-500 text-xs">{validationErrors.last_name}</p>
             )}
           </div>
-          {/* Attorney Email */}
-        <div className="mb-3">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Attorney Email <span className="text-red-500">*</span>
-          </label>
-          <Input
-            type="email"
-            value={formData.attorney_email}
-            onChange={(e) => onChange('attorney_email', e.target.value)}
-            placeholder="attorney@example.com"
-            className={validationErrors.attorney_email ? 'border-red-300 focus:border-red-500' : ''}
-          />
-          {validationErrors.attorney_email && (
-            <p className="text-red-500 text-xs">{validationErrors.attorney_email}</p>
-          )}
-        </div>
-        </div>
 
-        
-
-        {/* Loan Amount and Reference - Responsive columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Loan Amount <span className="text-red-500">*</span>
@@ -130,6 +109,13 @@ const InviteClientApplication: React.FC<InviteClientApplicationProps> = ({
             )}
           </div>
 
+        </div>
+
+        
+
+        {/* Loan Amount and Reference - Responsive columns */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+        
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Reference <span className="text-red-500">*</span>

@@ -13,9 +13,6 @@ export const inviteClientSchema = z.object({
     .min(1, 'Last name is required')
     .min(2, 'Last name must be at least 2 characters')
     .max(50, 'Last name must be less than 50 characters'),
-  attorney_email: z.string()
-    .min(1, 'Attorney email is required')
-    .email('Please enter a valid attorney email address'),
   loan_amount: z.string()
     .min(1, 'Loan amount is required')
     .regex(/^\d+$/, 'Loan amount must be a valid number')
@@ -45,7 +42,6 @@ export type InviteClientValidationErrors = {
   client_email?: string;
   first_name?: string;
   last_name?: string;
-  attorney_email?: string;
   loan_amount?: string;
   reference?: string;
   subject_line?: string;
