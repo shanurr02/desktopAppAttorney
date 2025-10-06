@@ -186,8 +186,10 @@ const SidePanel: React.FC<SidePanelProps> = ({ onSelect, activePage }) => {
                 data-tooltip-content={!expanded ? item.label : ""}
                 className={`w-full flex items-center ${expanded ? "justify-start gap-2" : "justify-center"} py-2 px-4 rounded-md text-sm font-medium transition-all duration-150 ease-out
                 ${isActive
-                    ? "bg-green-600/90 text-white shadow-md"
-                    : "text-gray-300 hover:bg-[#161717]/50 hover:text-white"
+                    ? "bg-white text-green-700 shadow-md"
+                    : item.id === "refer" 
+                      ? "bg-white hover:bg-gray-100 text-green-700"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-green-700 bg-white"
                   }`}
               >
                 <Icon size={20} className="flex-shrink-0" />

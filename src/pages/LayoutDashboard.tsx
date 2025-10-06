@@ -14,21 +14,21 @@ const LayoutDashboard: React.FC = () => {
   const renderPage = () => {
     switch (activePage) {
       case "home":
-        return <Dashboard />;
+        return <Dashboard onSelect={setActivePage} />;
       case "layers":
-        return <LoanApplication />;
+        return <LoanApplication onSelect={setActivePage} />;
       case "all":
-        return <Loans />;
+        return <Loans onSelect={setActivePage} />;
       case "invite":
-        return <InvitedClient />;
+        return <InvitedClient onSelect={setActivePage} />;
       case "refer":
-        return <ReferColleague />;
+        return <ReferColleague onSelect={setActivePage} />;
       case "send":
       case "compass":
       case "chart":
-        return <ComingSoon />;
+        return <ComingSoon onSelect={setActivePage} />;
       default:
-        return <ComingSoon />;
+        return <ComingSoon onSelect={setActivePage} />;
     }
   };
 

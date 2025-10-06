@@ -18,7 +18,11 @@ interface Client {
   avatar: string;
 }
 
-const Dashboard: React.FC = () => {
+interface DashboardProps {
+  onSelect?: (page: string) => void;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ onSelect }) => {
   const [selectedDateRange, setSelectedDateRange] = useState<{
     startDate: Date | null;
     endDate: Date | null;
@@ -110,7 +114,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="h-[98%]">
       {/* 🔹 Top Navbar */}
-      <NavbarDashboard />
+      <NavbarDashboard onSelect={onSelect || (() => {})} />
 
       {/* 🔹 Secondary Navbar (Business Activity) */}
       <div className="flex items-center justify-between py-4 bg-gray-100">

@@ -8,8 +8,12 @@ import {
 } from "lucide-react";
 import React from "react";
 
+interface ComingSoonProps {
+  onSelect?: (page: string) => void;
+}
+
 // Use the same icons as in SidePanel.tsx for feature cards
-const ComingSoon: React.FC = () => {
+const ComingSoon: React.FC<ComingSoonProps> = ({ onSelect }) => {
   const features = [
     {
       icon: DollarSign,

@@ -26,7 +26,11 @@ import {
 import { extractZodErrors } from "../utils";
 import NavbarDashboard from "../components/Dashboard/NavbarDashboard";
 
-const LoanApplication: React.FC = () => {
+interface LoanApplicationProps {
+  onSelect?: (page: string) => void;
+}
+
+const LoanApplication: React.FC<LoanApplicationProps> = ({ onSelect }) => {
     const { submitApplication, isSubmitting } = useLoanForm();
 
     // Use form validation hook for complete loan validation
@@ -556,7 +560,7 @@ const LoanApplication: React.FC = () => {
 
     return (
         <div className="px-2 h-full py-2">
-            <NavbarDashboard />
+            <NavbarDashboard onSelect={onSelect || (() => {})} />
             <div className="flex flex-col bg-gray-100 space-y-3">
                 <div className="overflow-y-auto mt-2">
                     <h2 className="text-gray-900 text-lg font-medium">

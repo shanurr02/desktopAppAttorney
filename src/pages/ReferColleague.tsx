@@ -26,7 +26,11 @@ interface ReferColleagueValidationErrors {
   your_email?: string;
 }
 
-const ReferColleague: React.FC = () => {
+interface ReferColleagueProps {
+  onSelect?: (page: string) => void;
+}
+
+const ReferColleague: React.FC<ReferColleagueProps> = ({ onSelect }) => {
   // Form state - individual fields
   const [colleague_first_name, setColleague_first_name] = useState("");
   const [colleague_last_name, setColleague_last_name] = useState("");
@@ -217,7 +221,7 @@ const ReferColleague: React.FC = () => {
 
   return (
     <div className="px-2 h-full py-2">
-      <NavbarDashboard />
+      <NavbarDashboard onSelect={onSelect || (() => {})} />
       <div className="flex flex-col bg-gray-100 space-y-3">
         {/* Enhanced Header Section */}
         <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-4">

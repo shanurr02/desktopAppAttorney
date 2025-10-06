@@ -11,7 +11,11 @@ import {
 import { inviteClientAPI } from "../api/inviteClient";
 import NavbarDashboard from "../components/Dashboard/NavbarDashboard";
 
-const InvitedClient: React.FC = () => {
+interface InvitedClientProps {
+  onSelect?: (page: string) => void;
+}
+
+const InvitedClient: React.FC<InvitedClientProps> = ({ onSelect }) => {
     // Use form validation hook
     const {
         errors: validationErrors,
@@ -150,7 +154,7 @@ const InvitedClient: React.FC = () => {
 
     return (
         <div className="px-2 h-full py-2">
-            <NavbarDashboard />
+            <NavbarDashboard onSelect={onSelect || (() => {})} />
             <div className="flex flex-col bg-gray-100 space-y-3">
                 <div className="overflow-y-auto mt-2">
                     <h2 className="text-gray-900 text-lg font-medium">
