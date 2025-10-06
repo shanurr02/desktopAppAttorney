@@ -21,7 +21,11 @@ function getUserName(): string {
   }
 }
 
-const NavbarDashboard: React.FC = () => {
+interface NavbarDashboardProps {
+  onSelect: (page: string) => void;
+}
+
+const NavbarDashboard: React.FC<NavbarDashboardProps> = ({ onSelect }) => {
   const [userName, setUserName] = useState<string>("Attorney");
 
   useEffect(() => {
@@ -37,7 +41,7 @@ const NavbarDashboard: React.FC = () => {
 
         {/* Right */}
         <div className="flex items-center gap-4">
-          <InviteButton onClick={() => alert("Invite clicked")} />
+          <InviteButton onClick={() => onSelect("invite")} />
           <SearchBox onChange={(val) => console.log("Searching:", val)} />
         </div>
       </div>
