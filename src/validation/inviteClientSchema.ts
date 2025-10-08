@@ -29,13 +29,37 @@ export const inviteClientSchema = z.object({
     .min(1, 'Custom email text is required')
     .min(10, 'Custom email text must be at least 10 characters')
     .max(1000, 'Custom email text must be less than 1000 characters'),
-  selected_file: z.string()
-    .min(1, 'File selection is required')
-    .max(255, 'File name must be less than 255 characters'),
+  selected_file: z.any().refine((val) => {
+    if (typeof val === 'string') {
+      return val.length > 0;
+    }
+    if (val instanceof File) {
+      // Check file size (10MB limit)
+      if (val.size > 10 * 1024 * 1024) {
+        return false;
+      }
+      // Check file type
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/gif',
+        'image/bmp',
+        'image/webp'
+      ];
+      return allowedTypes.includes(val.type) || val.size > 0;
+    }
+    return false;
+  }, 'File selection is required. Supported formats: PDF, DOC, DOCX, JPG, PNG, GIF, BMP, WEBP (max 10MB)'),
 });
 
-// Type inference from schema
-export type InviteClientFormData = z.infer<typeof inviteClientSchema>;
+// Type inference from schema with File support
+export type InviteClientFormData = Omit<z.infer<typeof inviteClientSchema>, 'selected_file'> & {
+  selected_file: string | File;
+};
 
 // Validation error type
 export type InviteClientValidationErrors = {
@@ -59,7 +83,32 @@ export const validateInviteClient = (data: InviteClientFormData) => {
       const errors: InviteClientValidationErrors = {};
       error.issues.forEach((err: z.ZodIssue) => {
         const field = err.path[0] as keyof InviteClientValidationErrors;
-        errors[field] = err.message;
+        
+        // Custom error messages for file validation
+        if (field === 'selected_file' && data.selected_file instanceof File) {
+          if (data.selected_file.size > 10 * 1024 * 1024) {
+            errors[field] = 'File size must be less than 10MB';
+          } else {
+            const allowedTypes = [
+              'application/pdf',
+              'application/msword', 
+              'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+              'image/jpeg',
+              'image/jpg',
+              'image/png',
+              'image/gif',
+              'image/bmp',
+              'image/webp'
+            ];
+            if (!allowedTypes.includes(data.selected_file.type)) {
+              errors[field] = 'Unsupported file type. Please upload PDF, DOC, DOCX, JPG, PNG, GIF, BMP, or WEBP files';
+            } else {
+              errors[field] = err.message;
+            }
+          }
+        } else {
+          errors[field] = err.message;
+        }
       });
       return { isValid: false, errors };
     }

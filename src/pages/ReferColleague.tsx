@@ -52,15 +52,15 @@ const ReferColleague: React.FC<ReferColleagueProps> = ({ onSelect }) => {
     try {
       // Use Electron API to open external URL in default browser
       if ((window as any).electronAPI) {
-        await (window as any).electronAPI.openExternal("https://casefunders.com/referral-terms/");
+        await (window as any).electronAPI.openExternal("https://casefunders.com/referral-colleague/");
       } else {
         // Fallback for web version
-        window.open("https://casefunders.com/referral-terms/", "_blank");
+        window.open("https://casefunders.com/referral-colleague/", "_blank");
       }
     } catch (error) {
       console.error("Failed to open referral terms URL:", error);
       // Fallback to window.open
-      window.open("https://casefunders.com/referral-terms/", "_blank");
+      window.open("https://casefunders.com/referral-colleague/", "_blank");
     }
   };
 

@@ -6,7 +6,7 @@ interface InviteClientApplicationProps {
   formData: InviteClientFormData;
   validationErrors: InviteClientValidationErrors;
   error: string;
-  onChange: (field: keyof InviteClientFormData, value: string) => void;
+  onChange: (field: keyof InviteClientFormData, value: string | File) => void;
   onSubmit: () => void;
   isSubmitting?: boolean;
 }
@@ -35,6 +35,14 @@ const InviteClientApplication: React.FC<InviteClientApplicationProps> = ({
   const handleLoanAmountChange = (value: string) => {
     const formattedValue = formatLoanAmount(value);
     onChange('loan_amount', formattedValue);
+  };
+
+  // Handle file upload
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      onChange('selected_file', file);
+    }
   };
 
   return (
@@ -185,7 +193,9 @@ const InviteClientApplication: React.FC<InviteClientApplicationProps> = ({
                 <svg className="mx-auto h-8 w-8 text-green-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <p className="text-sm text-green-600 font-medium">{formData.selected_file}</p>
+                <p className="text-sm text-green-600 font-medium">
+                  {formData.selected_file instanceof File ? formData.selected_file.name : formData.selected_file}
+                </p>
                 <button 
                   type="button" 
                   onClick={() => onChange('selected_file', '')}
@@ -200,15 +210,17 @@ const InviteClientApplication: React.FC<InviteClientApplicationProps> = ({
                   <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 <p className="text-sm text-gray-600 mt-2">
-                  <button 
-                    type="button" 
-                    onClick={() => onChange('selected_file', 'Case_REF12345.pdf')}
-                    className="text-blue-600 hover:text-blue-500"
-                  >
+                  <label className="text-blue-600 hover:text-blue-500 cursor-pointer">
                     Click to upload
-                  </button> or drag and drop
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.bmp,.webp"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                  </label> or drag and drop
                 </p>
-                <p className="text-xs text-gray-500">PDF, DOC, DOCX up to 10MB</p>
+                <p className="text-xs text-gray-500">PDF, DOC, DOCX, JPG, PNG, GIF up to 10MB</p>
               </div>
             )}
           </div>

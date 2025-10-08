@@ -31,9 +31,9 @@ const InvitedClient: React.FC<InvitedClientProps> = ({ onSelect }) => {
     const [last_name, setLast_name] = useState("");
     const [loan_amount, setLoan_amount] = useState("");
     const [reference, setReference] = useState("");
-    const [subject_line, setSubject_line] = useState("Request for Payment");
-    const [custom_email_text, setCustom_email_text] = useState("For your convenience, our firm accepts secure, online payments through LawPay. Thank you for the courtesy of your prompt payment.");
-    const [selected_file, setSelected_file] = useState("");
+    const [subject_line, setSubject_line] = useState("");
+    const [custom_email_text, setCustom_email_text] = useState("");
+    const [selected_file, setSelected_file] = useState<File | string>("");
 
     const [error, setError] = useState<string>("");
     const [successMessage, setSuccessMessage] = useState<string>("");
@@ -58,11 +58,26 @@ const InvitedClient: React.FC<InvitedClientProps> = ({ onSelect }) => {
         setLast_name("");
         setLoan_amount("");
         setReference("");
-        setSubject_line("Request for Payment");
-        setCustom_email_text("For your convenience, our firm accepts secure, online payments through LawPay. Thank you for the courtesy of your prompt payment.");
+        setSubject_line("");
+        setCustom_email_text("");
         setSelected_file("");
         setError("");
         setSuccessMessage("");
+        setIsSubmitting(false);
+        clearAllErrors();
+    };
+
+    // Reset form fields only (without clearing success message)
+    const resetFormFields = () => {
+        setClient_email("");
+        setFirst_name("");
+        setLast_name("");
+        setLoan_amount("");
+        setReference("");
+        setSubject_line("");
+        setCustom_email_text("");
+        setSelected_file("");
+        setError("");
         setIsSubmitting(false);
         clearAllErrors();
     };
@@ -93,10 +108,12 @@ const InvitedClient: React.FC<InvitedClientProps> = ({ onSelect }) => {
             
             console.log("Invite sent successfully:", result);
             setSuccessMessage(`Client invite sent successfully! ${result.payment_link ? 'Payment link generated.' : ''}`);
-            // Delay form reset to show success message first
+            // Clear form fields immediately after successful submission (but keep success message)
+            resetFormFields();
+            // Clear success message after 5 seconds
             setTimeout(() => {
-                resetForm();
-            }, 3000);
+                setSuccessMessage("");
+            }, 5000);
         } catch (err: any) {
             console.error("Invite submission error:", err);
             
@@ -121,28 +138,28 @@ const InvitedClient: React.FC<InvitedClientProps> = ({ onSelect }) => {
 
     // ===== SINGLE FIELD HANDLER =====
 
-    const handleFieldChange = (field: keyof InviteClientFormData, value: string) => {
+    const handleFieldChange = (field: keyof InviteClientFormData, value: string | File) => {
         switch (field) {
             case 'client_email':
-                setClient_email(value);
+                setClient_email(value as string);
                 break;
             case 'first_name':
-                setFirst_name(value);
+                setFirst_name(value as string);
                 break;
             case 'last_name':
-                setLast_name(value);
+                setLast_name(value as string);
                 break;
             case 'loan_amount':
-                setLoan_amount(value);
+                setLoan_amount(value as string);
                 break;
             case 'reference':
-                setReference(value);
+                setReference(value as string);
                 break;
             case 'subject_line':
-                setSubject_line(value);
+                setSubject_line(value as string);
                 break;
             case 'custom_email_text':
-                setCustom_email_text(value);
+                setCustom_email_text(value as string);
                 break;
             case 'selected_file':
                 setSelected_file(value);
